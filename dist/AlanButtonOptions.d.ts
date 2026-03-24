@@ -16,7 +16,7 @@ export interface AlanButtonOptions {
     onCommand?: (commandData: object) => void;
     onEvent?: (event: object) => void;
     onButtonState?: (state: string) => void;
-    onConnectionStatus?: (status: string) => void;
+    onConnectionStatus?: (status: string, event: object) => void;
     textChat?: {
         closeDelay?: number;
         showBtnIfChatOpen?: boolean;
