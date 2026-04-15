@@ -31,6 +31,11 @@ export interface AlanButtonOptions {
         };
         markdownStyles?: {
             mode?: 'default' | 'custom';
+        },
+        timestampFormat?: {
+            today: string;
+            yesterday: string;
+            other: string;
         }
     }
 }
