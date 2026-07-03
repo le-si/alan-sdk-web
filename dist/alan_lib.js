@@ -6896,8 +6896,8 @@
           this.options = options !== null && options !== void 0 ? options : defaultOpts;
           this.elementCB = elementCB !== null && elementCB !== void 0 ? elementCB : null;
         }
-        onparserinit(parser2) {
-          this.parser = parser2;
+        onparserinit(parser) {
+          this.parser = parser;
         }
         // Resets the handler back to starting state
         onreset() {
@@ -7080,17 +7080,17 @@
   });
 
   // node_modules/entities/lib/esm/decode.js
-  function isNumber(code2) {
-    return code2 >= CharCodes.ZERO && code2 <= CharCodes.NINE;
+  function isNumber(code) {
+    return code >= CharCodes.ZERO && code <= CharCodes.NINE;
   }
-  function isHexadecimalCharacter(code2) {
-    return code2 >= CharCodes.UPPER_A && code2 <= CharCodes.UPPER_F || code2 >= CharCodes.LOWER_A && code2 <= CharCodes.LOWER_F;
+  function isHexadecimalCharacter(code) {
+    return code >= CharCodes.UPPER_A && code <= CharCodes.UPPER_F || code >= CharCodes.LOWER_A && code <= CharCodes.LOWER_F;
   }
-  function isAsciiAlphaNumeric(code2) {
-    return code2 >= CharCodes.UPPER_A && code2 <= CharCodes.UPPER_Z || code2 >= CharCodes.LOWER_A && code2 <= CharCodes.LOWER_Z || isNumber(code2);
+  function isAsciiAlphaNumeric(code) {
+    return code >= CharCodes.UPPER_A && code <= CharCodes.UPPER_Z || code >= CharCodes.LOWER_A && code <= CharCodes.LOWER_Z || isNumber(code);
   }
-  function isEntityInAttributeInvalidEnd(code2) {
-    return code2 === CharCodes.EQUALS || isAsciiAlphaNumeric(code2);
+  function isEntityInAttributeInvalidEnd(code) {
+    return code === CharCodes.EQUALS || isAsciiAlphaNumeric(code);
   }
   function getDecoder(decodeTree) {
     let ret = "";
@@ -8246,8 +8246,8 @@
   });
 
   // node_modules/domutils/lib/esm/feeds.js
-  function getFeed(doc2) {
-    const feedRoot = getOneElement(isValidFeed, doc2);
+  function getFeed(doc) {
+    const feedRoot = getOneElement(isValidFeed, doc);
     return !feedRoot ? null : feedRoot.name === "feed" ? getAtomFeed(feedRoot) : getRssFeed(feedRoot);
   }
   function getAtomFeed(feedRoot) {
@@ -10975,20 +10975,20 @@
   });
 
   // node_modules/cheerio/dist/browser/parse.js
-  function getParse(parser2) {
-    return function parse9(content, options, isDocument2, context) {
+  function getParse(parser) {
+    return function parse10(content, options, isDocument2, context) {
       if (typeof Buffer !== "undefined" && Buffer.isBuffer(content)) {
         content = content.toString();
       }
       if (typeof content === "string") {
-        return parser2(content, options, isDocument2, context);
+        return parser(content, options, isDocument2, context);
       }
-      const doc2 = content;
-      if (!Array.isArray(doc2) && isDocument(doc2)) {
-        return doc2;
+      const doc = content;
+      if (!Array.isArray(doc) && isDocument(doc)) {
+        return doc;
       }
       const root2 = new Document([]);
-      update(doc2, root2);
+      update(doc, root2);
       return root2;
     };
   }
@@ -11583,13 +11583,13 @@
   });
 
   // node_modules/cheerio/dist/browser/load.js
-  function getLoad(parse9, render3) {
+  function getLoad(parse10, render3) {
     return function load2(content, options, isDocument2 = true) {
       if (content == null) {
         throw new Error("cheerio.load() expects a string");
       }
       const internalOpts = flattenOptions(options);
-      const initialRoot = parse9(content, internalOpts, isDocument2, null);
+      const initialRoot = parse10(content, internalOpts, isDocument2, null);
       class LoadedCheerio extends Cheerio {
         _make(selector, context) {
           const cheerio = initialize(selector, context);
@@ -11597,7 +11597,7 @@
           return cheerio;
         }
         _parse(content2, options2, isDocument3, context) {
-          return parse9(content2, options2, isDocument3, context);
+          return parse10(content2, options2, isDocument3, context);
         }
         _render(dom) {
           return render3(dom, this.options);
@@ -11607,7 +11607,7 @@
         if (selector && isCheerio(selector))
           return selector;
         const options2 = flattenOptions(opts, internalOpts);
-        const r = typeof root2 === "string" ? [parse9(root2, options2, false, null)] : "length" in root2 ? root2 : [root2];
+        const r = typeof root2 === "string" ? [parse10(root2, options2, false, null)] : "length" in root2 ? root2 : [root2];
         const rootInstance = isCheerio(r) ? r : new LoadedCheerio(r, null, options2);
         rootInstance._root = rootInstance;
         if (!selector) {
@@ -11615,7 +11615,7 @@
         }
         const elements = typeof selector === "string" && isHtml(selector) ? (
           // $(<html>)
-          parse9(selector, options2, false, null).children
+          parse10(selector, options2, false, null).children
         ) : isNode(selector) ? (
           // $(dom)
           [selector]
@@ -11635,7 +11635,7 @@
           // If we don't have a context, maybe we have a root, from loading
           typeof context === "string" ? isHtml(context) ? (
             // $('li', '<ul>...</ul>')
-            new LoadedCheerio([parse9(context, options2, false, null)], rootInstance, options2)
+            new LoadedCheerio([parse10(context, options2, false, null)], rootInstance, options2)
           ) : (
             // $('li', 'ul')
             (search = `${context} ${search}`, rootInstance)
@@ -11871,12 +11871,12 @@
         get offset() {
           return this.droppedBufferSize + this.pos;
         }
-        getError(code2, cpOffset) {
+        getError(code, cpOffset) {
           const { line, col, offset: offset2 } = this;
           const startCol = col + cpOffset;
           const startOffset = offset2 + cpOffset;
           return {
-            code: code2,
+            code,
             startLine: line,
             endLine: line,
             startCol,
@@ -11885,10 +11885,10 @@
             endOffset: startOffset
           };
         }
-        _err(code2) {
+        _err(code) {
           if (this.handler.onParseError && this.lastErrOffset !== this.offset) {
             this.lastErrOffset = this.offset;
-            this.handler.onParseError(this.getError(code2, 0));
+            this.handler.onParseError(this.getError(code, 0));
           }
         }
         _addGap() {
@@ -11958,8 +11958,8 @@
             this.endOfChunkHit = !this.lastChunkWritten;
             return CODE_POINTS.EOF;
           }
-          const code2 = this.html.charCodeAt(pos);
-          return code2 === CODE_POINTS.CARRIAGE_RETURN ? CODE_POINTS.LINE_FEED : code2;
+          const code = this.html.charCodeAt(pos);
+          return code === CODE_POINTS.CARRIAGE_RETURN ? CODE_POINTS.LINE_FEED : code;
         }
         advance() {
           this.pos++;
@@ -12116,17 +12116,17 @@
   });
 
   // node_modules/cheerio/node_modules/parse5/node_modules/entities/dist/esm/decode.js
-  function isNumber2(code2) {
-    return code2 >= CharCodes2.ZERO && code2 <= CharCodes2.NINE;
+  function isNumber2(code) {
+    return code >= CharCodes2.ZERO && code <= CharCodes2.NINE;
   }
-  function isHexadecimalCharacter2(code2) {
-    return code2 >= CharCodes2.UPPER_A && code2 <= CharCodes2.UPPER_F || code2 >= CharCodes2.LOWER_A && code2 <= CharCodes2.LOWER_F;
+  function isHexadecimalCharacter2(code) {
+    return code >= CharCodes2.UPPER_A && code <= CharCodes2.UPPER_F || code >= CharCodes2.LOWER_A && code <= CharCodes2.LOWER_F;
   }
-  function isAsciiAlphaNumeric2(code2) {
-    return code2 >= CharCodes2.UPPER_A && code2 <= CharCodes2.UPPER_Z || code2 >= CharCodes2.LOWER_A && code2 <= CharCodes2.LOWER_Z || isNumber2(code2);
+  function isAsciiAlphaNumeric2(code) {
+    return code >= CharCodes2.UPPER_A && code <= CharCodes2.UPPER_Z || code >= CharCodes2.LOWER_A && code <= CharCodes2.LOWER_Z || isNumber2(code);
   }
-  function isEntityInAttributeInvalidEnd2(code2) {
-    return code2 === CharCodes2.EQUALS || isAsciiAlphaNumeric2(code2);
+  function isEntityInAttributeInvalidEnd2(code) {
+    return code === CharCodes2.EQUALS || isAsciiAlphaNumeric2(code);
   }
   function determineBranch2(decodeTree, current2, nodeIndex, char) {
     const branchCount = (current2 & BinTrieFlags2.BRANCH_LENGTH) >> 7;
@@ -12997,16 +12997,16 @@
   function isScriptDataDoubleEscapeSequenceEnd(cp) {
     return isWhitespace2(cp) || cp === CODE_POINTS.SOLIDUS || cp === CODE_POINTS.GREATER_THAN_SIGN;
   }
-  function getErrorForNumericCharacterReference(code2) {
-    if (code2 === CODE_POINTS.NULL) {
+  function getErrorForNumericCharacterReference(code) {
+    if (code === CODE_POINTS.NULL) {
       return ERR.nullCharacterReference;
-    } else if (code2 > 1114111) {
+    } else if (code > 1114111) {
       return ERR.characterReferenceOutsideUnicodeRange;
-    } else if (isSurrogate(code2)) {
+    } else if (isSurrogate(code)) {
       return ERR.surrogateCharacterReference;
-    } else if (isUndefinedCodePoint(code2)) {
+    } else if (isUndefinedCodePoint(code)) {
       return ERR.noncharacterCharacterReference;
-    } else if (isControlCodePoint(code2) || code2 === CODE_POINTS.CARRIAGE_RETURN) {
+    } else if (isControlCodePoint(code) || code === CODE_POINTS.CARRIAGE_RETURN) {
       return ERR.controlCharacterReference;
     }
     return null;
@@ -13131,17 +13131,17 @@
             absenceOfDigitsInNumericCharacterReference: (consumed) => {
               this._err(ERR.absenceOfDigitsInNumericCharacterReference, this.entityStartPos - this.preprocessor.pos + consumed);
             },
-            validateNumericCharacterReference: (code2) => {
-              const error = getErrorForNumericCharacterReference(code2);
+            validateNumericCharacterReference: (code) => {
+              const error = getErrorForNumericCharacterReference(code);
               if (error)
                 this._err(error, 1);
             }
           } : void 0);
         }
         //Errors
-        _err(code2, cpOffset = 0) {
+        _err(code, cpOffset = 0) {
           var _a4, _b;
-          (_b = (_a4 = this.handler).onParseError) === null || _b === void 0 ? void 0 : _b.call(_a4, this.preprocessor.getError(code2, cpOffset));
+          (_b = (_a4 = this.handler).onParseError) === null || _b === void 0 ? void 0 : _b.call(_a4, this.preprocessor.getError(code, cpOffset));
         }
         // NOTE: `offset` may never run across line boundaries.
         getCurrentLocation(offset2) {
@@ -18560,9 +18560,9 @@
         }
         // API
         static parse(html3, options) {
-          const parser2 = new this(options);
-          parser2.tokenizer.write(html3, true);
-          return parser2.document;
+          const parser = new this(options);
+          parser.tokenizer.write(html3, true);
+          return parser.document;
         }
         static getFragmentParser(fragmentContext, options) {
           const opts = {
@@ -18571,15 +18571,15 @@
           };
           fragmentContext !== null && fragmentContext !== void 0 ? fragmentContext : fragmentContext = opts.treeAdapter.createElement(TAG_NAMES.TEMPLATE, NS.HTML, []);
           const documentMock = opts.treeAdapter.createElement("documentmock", NS.HTML, []);
-          const parser2 = new this(opts, documentMock, fragmentContext);
-          if (parser2.fragmentContextID === TAG_ID.TEMPLATE) {
-            parser2.tmplInsertionModeStack.unshift(InsertionMode.IN_TEMPLATE);
+          const parser = new this(opts, documentMock, fragmentContext);
+          if (parser.fragmentContextID === TAG_ID.TEMPLATE) {
+            parser.tmplInsertionModeStack.unshift(InsertionMode.IN_TEMPLATE);
           }
-          parser2._initTokenizerForFragmentParsing();
-          parser2._insertFakeRootElement();
-          parser2._resetInsertionMode();
-          parser2._findFormInFragmentContext();
-          return parser2;
+          parser._initTokenizerForFragmentParsing();
+          parser._insertFakeRootElement();
+          parser._resetInsertionMode();
+          parser._findFormInFragmentContext();
+          return parser;
         }
         getFragment() {
           const rootElement = this.treeAdapter.getFirstChild(this.document);
@@ -18589,13 +18589,13 @@
         }
         //Errors
         /** @internal */
-        _err(token, code2, beforeToken) {
+        _err(token, code, beforeToken) {
           var _a4;
           if (!this.onParseError)
             return;
           const loc = (_a4 = token.location) !== null && _a4 !== void 0 ? _a4 : BASE_LOC;
           const err = {
-            code: code2,
+            code,
             startLine: loc.startLine,
             startCol: loc.startCol,
             startOffset: loc.startOffset,
@@ -19749,9 +19749,9 @@
       html3 = fragmentContext;
       fragmentContext = null;
     }
-    const parser2 = Parser.getFragmentParser(fragmentContext, options);
-    parser2.tokenizer.write(html3, true);
-    return parser2.getFragment();
+    const parser = Parser.getFragmentParser(fragmentContext, options);
+    parser.tokenizer.write(html3, true);
+    return parser.getFragment();
   }
   var init_dist = __esm({
     "node_modules/cheerio/node_modules/parse5/dist/index.js"() {
@@ -22933,12 +22933,12 @@
       var TIMER = false;
       var debug = require_debug()("parse");
       var lex = require_lexer();
-      exports = module.exports = parse9;
+      exports = module.exports = parse10;
       var _comments;
       var _depth;
       var _position;
       var _tokens;
-      function parse9(css2, options) {
+      function parse10(css2, options) {
         var start;
         options || (options = {});
         _comments = !!options.comments;
@@ -23386,12 +23386,12 @@
         return this.raw;
       };
       var cache = {};
-      var parse9 = function(expression) {
+      var parse10 = function(expression) {
         if (expression == null) return null;
         expression = ("" + expression).replace(/^\s+|\s+$/g, "");
         return cache[expression] || (cache[expression] = new Expressions(expression));
       };
-      module.exports = parse9;
+      module.exports = parse10;
     }
   });
 
@@ -23399,7 +23399,7 @@
   var require_selector = __commonJS({
     "node_modules/juice/lib/selector.js"(exports, module) {
       "use strict";
-      var parser2 = require_parser2();
+      var parser = require_parser2();
       module.exports = exports = Selector;
       function Selector(text3, styleAttribute) {
         this.text = text3;
@@ -23408,7 +23408,7 @@
       }
       Selector.prototype.parsed = function() {
         if (!this.tokens) {
-          this.tokens = parse9(this.text);
+          this.tokens = parse10(this.text);
         }
         return this.tokens;
       };
@@ -23419,7 +23419,7 @@
         }
         return this.spec;
         function specificity(text3, parsed) {
-          var expressions = parsed || parse9(text3);
+          var expressions = parsed || parse10(text3);
           var spec = [styleAttribute ? 1 : 0, 0, 0, 0];
           var nots = [];
           for (var i = 0; i < expressions.length; i++) {
@@ -23456,9 +23456,9 @@
           return spec;
         }
       };
-      function parse9(text3) {
+      function parse10(text3) {
         try {
-          return parser2(text3)[0];
+          return parser(text3)[0];
         } catch (e) {
           return [];
         }
@@ -23844,11 +23844,11 @@
         var $3 = cheerioLoad(html3, options, entityConverters.encodeEntities);
         var args = [$3];
         args.push.apply(args, callbackExtraArguments);
-        var doc2 = callback.apply(void 0, args) || $3;
+        var doc = callback.apply(void 0, args) || $3;
         if (options && options.xmlMode) {
-          return entityConverters.decodeEntities(doc2.xml());
+          return entityConverters.decodeEntities(doc.xml());
         }
-        return entityConverters.decodeEntities(doc2.html());
+        return entityConverters.decodeEntities(doc.html());
       };
       module.exports.codeBlocks = {
         EJS: { start: "<%", end: "%>" },
@@ -24027,17 +24027,17 @@
         CharCodes6[CharCodes6["UPPER_Z"] = 90] = "UPPER_Z";
       })(CharCodes5 || (CharCodes5 = {}));
       var TO_LOWER_BIT3 = 32;
-      function isNumber3(code2) {
-        return code2 >= CharCodes5.ZERO && code2 <= CharCodes5.NINE;
+      function isNumber3(code) {
+        return code >= CharCodes5.ZERO && code <= CharCodes5.NINE;
       }
-      function isHexadecimalCharacter3(code2) {
-        return code2 >= CharCodes5.UPPER_A && code2 <= CharCodes5.UPPER_F || code2 >= CharCodes5.LOWER_A && code2 <= CharCodes5.LOWER_F;
+      function isHexadecimalCharacter3(code) {
+        return code >= CharCodes5.UPPER_A && code <= CharCodes5.UPPER_F || code >= CharCodes5.LOWER_A && code <= CharCodes5.LOWER_F;
       }
-      function isAsciiAlphaNumeric4(code2) {
-        return code2 >= CharCodes5.UPPER_A && code2 <= CharCodes5.UPPER_Z || code2 >= CharCodes5.LOWER_A && code2 <= CharCodes5.LOWER_Z || isNumber3(code2);
+      function isAsciiAlphaNumeric4(code) {
+        return code >= CharCodes5.UPPER_A && code <= CharCodes5.UPPER_Z || code >= CharCodes5.LOWER_A && code <= CharCodes5.LOWER_Z || isNumber3(code);
       }
-      function isEntityInAttributeInvalidEnd3(code2) {
-        return code2 === CharCodes5.EQUALS || isAsciiAlphaNumeric4(code2);
+      function isEntityInAttributeInvalidEnd3(code) {
+        return code === CharCodes5.EQUALS || isAsciiAlphaNumeric4(code);
       }
       var EntityDecoderState4;
       (function(EntityDecoderState5) {
@@ -26077,7 +26077,7 @@
           }
         };
         const _initDocument = function _initDocument2(dirty) {
-          let doc2 = null;
+          let doc = null;
           let leadingWhitespace = null;
           if (FORCE_BODY) {
             dirty = "<remove></remove>" + dirty;
@@ -26091,25 +26091,25 @@
           const dirtyPayload = trustedTypesPolicy ? trustedTypesPolicy.createHTML(dirty) : dirty;
           if (NAMESPACE === HTML_NAMESPACE) {
             try {
-              doc2 = new DOMParser2().parseFromString(dirtyPayload, PARSER_MEDIA_TYPE);
+              doc = new DOMParser2().parseFromString(dirtyPayload, PARSER_MEDIA_TYPE);
             } catch (_) {
             }
           }
-          if (!doc2 || !doc2.documentElement) {
-            doc2 = implementation.createDocument(NAMESPACE, "template", null);
+          if (!doc || !doc.documentElement) {
+            doc = implementation.createDocument(NAMESPACE, "template", null);
             try {
-              doc2.documentElement.innerHTML = IS_EMPTY_INPUT ? emptyHTML : dirtyPayload;
+              doc.documentElement.innerHTML = IS_EMPTY_INPUT ? emptyHTML : dirtyPayload;
             } catch (_) {
             }
           }
-          const body = doc2.body || doc2.documentElement;
+          const body = doc.body || doc.documentElement;
           if (dirty && leadingWhitespace) {
             body.insertBefore(document2.createTextNode(leadingWhitespace), body.childNodes[0] || null);
           }
           if (NAMESPACE === HTML_NAMESPACE) {
-            return getElementsByTagName2.call(doc2, WHOLE_DOCUMENT ? "html" : "body")[0];
+            return getElementsByTagName2.call(doc, WHOLE_DOCUMENT ? "html" : "body")[0];
           }
-          return WHOLE_DOCUMENT ? doc2.documentElement : body;
+          return WHOLE_DOCUMENT ? doc.documentElement : body;
         };
         const _createNodeIterator = function _createNodeIterator2(root2) {
           return createNodeIterator.call(
@@ -26675,20 +26675,20 @@
         const cache = getEncodeCache(exclude);
         let result = "";
         for (let i = 0, l = string.length; i < l; i++) {
-          const code2 = string.charCodeAt(i);
-          if (keepEscaped && code2 === 37 && i + 2 < l) {
+          const code = string.charCodeAt(i);
+          if (keepEscaped && code === 37 && i + 2 < l) {
             if (/^[0-9a-f]{2}$/i.test(string.slice(i + 1, i + 3))) {
               result += string.slice(i, i + 3);
               i += 2;
               continue;
             }
           }
-          if (code2 < 128) {
-            result += cache[code2];
+          if (code < 128) {
+            result += cache[code];
             continue;
           }
-          if (code2 >= 55296 && code2 <= 57343) {
-            if (code2 >= 55296 && code2 <= 56319 && i + 1 < l) {
+          if (code >= 55296 && code <= 57343) {
+            if (code >= 55296 && code <= 56319 && i + 1 < l) {
               const nextCode = string.charCodeAt(i + 1);
               if (nextCode >= 56320 && nextCode <= 57343) {
                 result += encodeURIComponent(string[i] + string[i + 1]);
@@ -27089,17 +27089,17 @@
         BinTrieFlags5[BinTrieFlags5["BRANCH_LENGTH"] = 16256] = "BRANCH_LENGTH";
         BinTrieFlags5[BinTrieFlags5["JUMP_TABLE"] = 127] = "JUMP_TABLE";
       })(BinTrieFlags4 = exports.BinTrieFlags || (exports.BinTrieFlags = {}));
-      function isNumber3(code2) {
-        return code2 >= CharCodes5.ZERO && code2 <= CharCodes5.NINE;
+      function isNumber3(code) {
+        return code >= CharCodes5.ZERO && code <= CharCodes5.NINE;
       }
-      function isHexadecimalCharacter3(code2) {
-        return code2 >= CharCodes5.UPPER_A && code2 <= CharCodes5.UPPER_F || code2 >= CharCodes5.LOWER_A && code2 <= CharCodes5.LOWER_F;
+      function isHexadecimalCharacter3(code) {
+        return code >= CharCodes5.UPPER_A && code <= CharCodes5.UPPER_F || code >= CharCodes5.LOWER_A && code <= CharCodes5.LOWER_F;
       }
-      function isAsciiAlphaNumeric4(code2) {
-        return code2 >= CharCodes5.UPPER_A && code2 <= CharCodes5.UPPER_Z || code2 >= CharCodes5.LOWER_A && code2 <= CharCodes5.LOWER_Z || isNumber3(code2);
+      function isAsciiAlphaNumeric4(code) {
+        return code >= CharCodes5.UPPER_A && code <= CharCodes5.UPPER_Z || code >= CharCodes5.LOWER_A && code <= CharCodes5.LOWER_Z || isNumber3(code);
       }
-      function isEntityInAttributeInvalidEnd3(code2) {
-        return code2 === CharCodes5.EQUALS || isAsciiAlphaNumeric4(code2);
+      function isEntityInAttributeInvalidEnd3(code) {
+        return code === CharCodes5.EQUALS || isAsciiAlphaNumeric4(code);
       }
       var EntityDecoderState4;
       (function(EntityDecoderState5) {
@@ -28421,9 +28421,9 @@
       var DIGITAL_ENTITY_TEST_RE = /^#((?:x[a-f0-9]{1,8}|[0-9]{1,8}))$/i;
       function replaceEntityPattern(match, name) {
         if (name.charCodeAt(0) === 35 && DIGITAL_ENTITY_TEST_RE.test(name)) {
-          const code3 = name[1].toLowerCase() === "x" ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
-          if (isValidEntityCode(code3)) {
-            return fromCodePoint4(code3);
+          const code2 = name[1].toLowerCase() === "x" ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
+          if (isValidEntityCode(code2)) {
+            return fromCodePoint4(code2);
           }
           return match;
         }
@@ -28471,19 +28471,19 @@
       function escapeRE(str) {
         return str.replace(REGEXP_ESCAPE_RE, "\\$&");
       }
-      function isSpace(code3) {
-        switch (code3) {
+      function isSpace(code2) {
+        switch (code2) {
           case 9:
           case 32:
             return true;
         }
         return false;
       }
-      function isWhiteSpace(code3) {
-        if (code3 >= 8192 && code3 <= 8202) {
+      function isWhiteSpace(code2) {
+        if (code2 >= 8192 && code2 <= 8202) {
           return true;
         }
-        switch (code3) {
+        switch (code2) {
           case 9:
           // \t
           case 10:
@@ -28610,7 +28610,7 @@
         return labelEnd;
       }
       function parseLinkDestination(str, start, max) {
-        let code3;
+        let code2;
         let pos = start;
         const result = {
           ok: false,
@@ -28620,20 +28620,20 @@
         if (str.charCodeAt(pos) === 60) {
           pos++;
           while (pos < max) {
-            code3 = str.charCodeAt(pos);
-            if (code3 === 10) {
+            code2 = str.charCodeAt(pos);
+            if (code2 === 10) {
               return result;
             }
-            if (code3 === 60) {
+            if (code2 === 60) {
               return result;
             }
-            if (code3 === 62) {
+            if (code2 === 62) {
               result.pos = pos + 1;
               result.str = unescapeAll(str.slice(start + 1, pos));
               result.ok = true;
               return result;
             }
-            if (code3 === 92 && pos + 1 < max) {
+            if (code2 === 92 && pos + 1 < max) {
               pos += 2;
               continue;
             }
@@ -28643,27 +28643,27 @@
         }
         let level = 0;
         while (pos < max) {
-          code3 = str.charCodeAt(pos);
-          if (code3 === 32) {
+          code2 = str.charCodeAt(pos);
+          if (code2 === 32) {
             break;
           }
-          if (code3 < 32 || code3 === 127) {
+          if (code2 < 32 || code2 === 127) {
             break;
           }
-          if (code3 === 92 && pos + 1 < max) {
+          if (code2 === 92 && pos + 1 < max) {
             if (str.charCodeAt(pos + 1) === 32) {
               break;
             }
             pos += 2;
             continue;
           }
-          if (code3 === 40) {
+          if (code2 === 40) {
             level++;
             if (level > 32) {
               return result;
             }
           }
-          if (code3 === 41) {
+          if (code2 === 41) {
             if (level === 0) {
               break;
             }
@@ -28683,7 +28683,7 @@
         return result;
       }
       function parseLinkTitle(str, start, max, prev_state) {
-        let code3;
+        let code2;
         let pos = start;
         const state = {
           // if `true`, this is a valid link title
@@ -28716,15 +28716,15 @@
           state.marker = marker;
         }
         while (pos < max) {
-          code3 = str.charCodeAt(pos);
-          if (code3 === state.marker) {
+          code2 = str.charCodeAt(pos);
+          if (code2 === state.marker) {
             state.pos = pos + 1;
             state.str += unescapeAll(str.slice(start, pos));
             state.ok = true;
             return state;
-          } else if (code3 === 40 && state.marker === 41) {
+          } else if (code2 === 40 && state.marker === 41) {
             return state;
-          } else if (code3 === 92 && pos + 1 < max) {
+          } else if (code2 === 92 && pos + 1 < max) {
             pos++;
           }
           pos++;
@@ -29582,20 +29582,20 @@
         }
         return pos;
       };
-      StateBlock.prototype.skipChars = function skipChars(pos, code3) {
+      StateBlock.prototype.skipChars = function skipChars(pos, code2) {
         for (let max = this.src.length; pos < max; pos++) {
-          if (this.src.charCodeAt(pos) !== code3) {
+          if (this.src.charCodeAt(pos) !== code2) {
             break;
           }
         }
         return pos;
       };
-      StateBlock.prototype.skipCharsBack = function skipCharsBack(pos, code3, min) {
+      StateBlock.prototype.skipCharsBack = function skipCharsBack(pos, code2, min) {
         if (pos <= min) {
           return pos;
         }
         while (pos > min) {
-          if (code3 !== this.src.charCodeAt(--pos)) {
+          if (code2 !== this.src.charCodeAt(--pos)) {
             return pos + 1;
           }
         }
@@ -29828,7 +29828,7 @@
         state.line = nextLine;
         return true;
       }
-      function code2(state, startLine, endLine) {
+      function code(state, startLine, endLine) {
         if (state.sCount[startLine] - state.blkIndent < 4) {
           return false;
         }
@@ -30674,7 +30674,7 @@
         // First 2 params - rule name & source. Secondary array - list of rules,
         // which can be terminated by this one.
         ["table", table, ["paragraph", "reference"]],
-        ["code", code2],
+        ["code", code],
         ["fence", fence, ["paragraph", "reference", "blockquote", "list"]],
         ["blockquote", blockquote, ["paragraph", "reference", "blockquote", "list"]],
         ["hr", hr, ["paragraph", "reference", "blockquote", "list"]],
@@ -31198,7 +31198,7 @@
         postProcess: emphasis_post_process
       };
       function link(state, silent) {
-        let code3, label, res, ref2;
+        let code2, label, res, ref2;
         let href = "";
         let title = "";
         let start = state.pos;
@@ -31218,8 +31218,8 @@
           parseReference = false;
           pos++;
           for (; pos < max; pos++) {
-            code3 = state.src.charCodeAt(pos);
-            if (!isSpace(code3) && code3 !== 10) {
+            code2 = state.src.charCodeAt(pos);
+            if (!isSpace(code2) && code2 !== 10) {
               break;
             }
           }
@@ -31237,8 +31237,8 @@
             }
             start = pos;
             for (; pos < max; pos++) {
-              code3 = state.src.charCodeAt(pos);
-              if (!isSpace(code3) && code3 !== 10) {
+              code2 = state.src.charCodeAt(pos);
+              if (!isSpace(code2) && code2 !== 10) {
                 break;
               }
             }
@@ -31247,8 +31247,8 @@
               title = res.str;
               pos = res.pos;
               for (; pos < max; pos++) {
-                code3 = state.src.charCodeAt(pos);
-                if (!isSpace(code3) && code3 !== 10) {
+                code2 = state.src.charCodeAt(pos);
+                if (!isSpace(code2) && code2 !== 10) {
                   break;
                 }
               }
@@ -31304,7 +31304,7 @@
         return true;
       }
       function image(state, silent) {
-        let code3, content, label, pos, ref2, res, title, start;
+        let code2, content, label, pos, ref2, res, title, start;
         let href = "";
         const oldPos = state.pos;
         const max = state.posMax;
@@ -31323,8 +31323,8 @@
         if (pos < max && state.src.charCodeAt(pos) === 40) {
           pos++;
           for (; pos < max; pos++) {
-            code3 = state.src.charCodeAt(pos);
-            if (!isSpace(code3) && code3 !== 10) {
+            code2 = state.src.charCodeAt(pos);
+            if (!isSpace(code2) && code2 !== 10) {
               break;
             }
           }
@@ -31343,8 +31343,8 @@
           }
           start = pos;
           for (; pos < max; pos++) {
-            code3 = state.src.charCodeAt(pos);
-            if (!isSpace(code3) && code3 !== 10) {
+            code2 = state.src.charCodeAt(pos);
+            if (!isSpace(code2) && code2 !== 10) {
               break;
             }
           }
@@ -31353,8 +31353,8 @@
             title = res.str;
             pos = res.pos;
             for (; pos < max; pos++) {
-              code3 = state.src.charCodeAt(pos);
-              if (!isSpace(code3) && code3 !== 10) {
+              code2 = state.src.charCodeAt(pos);
+              if (!isSpace(code2) && code2 !== 10) {
                 break;
               }
             }
@@ -31513,9 +31513,9 @@
           const match = state.src.slice(pos).match(DIGITAL_RE);
           if (match) {
             if (!silent) {
-              const code3 = match[1][0].toLowerCase() === "x" ? parseInt(match[1].slice(1), 16) : parseInt(match[1], 10);
+              const code2 = match[1][0].toLowerCase() === "x" ? parseInt(match[1].slice(1), 16) : parseInt(match[1], 10);
               const token = state.push("text_special", "", 0);
-              token.content = isValidEntityCode(code3) ? fromCodePoint4(code3) : fromCodePoint4(65533);
+              token.content = isValidEntityCode(code2) ? fromCodePoint4(code2) : fromCodePoint4(65533);
               token.markup = match[0];
               token.info = "entity";
             }
@@ -33215,23 +33215,23 @@
           return classes.split(/\s+/).find((_class) => shouldNotHighlight(_class) || getLanguage(_class));
         }
         function highlight2(codeOrLanguageName, optionsOrCode, ignoreIllegals) {
-          let code2 = "";
+          let code = "";
           let languageName = "";
           if (typeof optionsOrCode === "object") {
-            code2 = codeOrLanguageName;
+            code = codeOrLanguageName;
             ignoreIllegals = optionsOrCode.ignoreIllegals;
             languageName = optionsOrCode.language;
           } else {
             deprecated("10.7.0", "highlight(lang, code, ...args) has been deprecated.");
             deprecated("10.7.0", "Please use highlight(code, options) instead.\nhttps://github.com/highlightjs/highlight.js/issues/2277");
             languageName = codeOrLanguageName;
-            code2 = optionsOrCode;
+            code = optionsOrCode;
           }
           if (ignoreIllegals === void 0) {
             ignoreIllegals = true;
           }
           const context = {
-            code: code2,
+            code,
             language: languageName
           };
           fire("before:highlight", context);
@@ -33568,22 +33568,22 @@
             }
           }
         }
-        function justTextHighlightResult(code2) {
+        function justTextHighlightResult(code) {
           const result = {
-            value: escape3(code2),
+            value: escape3(code),
             illegal: false,
             relevance: 0,
             _top: PLAINTEXT_LANGUAGE,
             _emitter: new options.__emitter(options)
           };
-          result._emitter.addText(code2);
+          result._emitter.addText(code);
           return result;
         }
-        function highlightAuto(code2, languageSubset) {
+        function highlightAuto(code, languageSubset) {
           languageSubset = languageSubset || options.languages || Object.keys(languages);
-          const plaintext = justTextHighlightResult(code2);
+          const plaintext = justTextHighlightResult(code);
           const results = languageSubset.filter(getLanguage).filter(autoDetection).map(
-            (name) => _highlight(name, code2, false)
+            (name) => _highlight(name, code, false)
           );
           results.unshift(plaintext);
           const sorted = results.sort((a, b) => {
@@ -84050,6 +84050,835 @@
     }
   });
 
+  // node_modules/@prantlf/jsonlint/lib/jsonlint.js
+  var require_jsonlint = __commonJS({
+    "node_modules/@prantlf/jsonlint/lib/jsonlint.js"(exports, module) {
+      (function(global2, factory) {
+        typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define("jsonlint", ["exports"], factory) : (global2 = global2 || self, factory(global2.jsonlint = {}));
+      })(exports, function(exports2) {
+        "use strict";
+        const Uni = {
+          isWhiteSpace: function isWhiteSpace(x) {
+            return x === " " || x === "\xA0" || x === "\uFEFF" || // <-- this is not a Unicode WS, only a JS one
+            x >= "	" && x <= "\r" || // 9 A B C D
+            // + whitespace characters from unicode, category Zs
+            x === "\u1680" || x >= "\u2000" && x <= "\u200A" || // 0 1 2 3 4 5 6 7 8 9 A
+            x === "\u2028" || x === "\u2029" || x === "\u202F" || x === "\u205F" || x === "\u3000";
+          },
+          isWhiteSpaceJSON: function isWhiteSpaceJSON(x) {
+            return x === " " || x === "	" || x === "\n" || x === "\r";
+          },
+          isLineTerminator: function isLineTerminator(x) {
+            return x === "\n" || x === "\r" || x === "\u2028" || x === "\u2029";
+          },
+          isLineTerminatorJSON: function isLineTerminatorJSON(x) {
+            return x === "\n" || x === "\r";
+          },
+          isIdentifierStart: function isIdentifierStart2(x) {
+            return x === "$" || x === "_" || x >= "A" && x <= "Z" || x >= "a" && x <= "z" || x >= "\x80" && Uni.NonAsciiIdentifierStart.test(x);
+          },
+          isIdentifierPart: function isIdentifierPart(x) {
+            return x === "$" || x === "_" || x >= "A" && x <= "Z" || x >= "a" && x <= "z" || x >= "0" && x <= "9" || // <-- addition to Start
+            x >= "\x80" && Uni.NonAsciiIdentifierPart.test(x);
+          },
+          // ECMAScript 5.1/Unicode v6.3.0 NonAsciiIdentifierStart:
+          NonAsciiIdentifierStart: /[\xAA\xB5\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u08A0\u08A2-\u08AC\u0904-\u0939\u093D\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097F\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09F0\u09F1\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B71\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C33\u0C35-\u0C39\u0C3D\u0C58\u0C59\u0C60\u0C61\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDE\u0CE0\u0CE1\u0CF1\u0CF2\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D60\u0D61\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E81\u0E82\u0E84\u0E87\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA\u0EAB\u0EAD-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0EDC-\u0EDF\u0F00\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1380-\u138F\u13A0-\u13F4\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F0\u1700-\u170C\u170E-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u1820-\u1877\u1880-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191C\u1950-\u196D\u1970-\u1974\u1980-\u19AB\u19C1-\u19C7\u1A00-\u1A16\u1A20-\u1A54\u1AA7\u1B05-\u1B33\u1B45-\u1B4B\u1B83-\u1BA0\u1BAE\u1BAF\u1BBA-\u1BE5\u1C00-\u1C23\u1C4D-\u1C4F\u1C5A-\u1C7D\u1CE9-\u1CEC\u1CEE-\u1CF1\u1CF5\u1CF6\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2071\u207F\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2160-\u2188\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312D\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FCC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA61F\uA62A\uA62B\uA640-\uA66E\uA67F-\uA697\uA6A0-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA78E\uA790-\uA793\uA7A0-\uA7AA\uA7F8-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA840-\uA873\uA882-\uA8B3\uA8F2-\uA8F7\uA8FB\uA90A-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA60-\uAA76\uAA7A\uAA80-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uABC0-\uABE2\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]/,
+          // ECMAScript 5.1/Unicode v6.3.0 NonAsciiIdentifierPart:
+          /* eslint-disable-next-line no-misleading-character-class */
+          NonAsciiIdentifierPart: /[\xAA\xB5\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0300-\u0374\u0376\u0377\u037A-\u037D\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u0483-\u0487\u048A-\u0527\u0531-\u0556\u0559\u0561-\u0587\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u05D0-\u05EA\u05F0-\u05F2\u0610-\u061A\u0620-\u0669\u066E-\u06D3\u06D5-\u06DC\u06DF-\u06E8\u06EA-\u06FC\u06FF\u0710-\u074A\u074D-\u07B1\u07C0-\u07F5\u07FA\u0800-\u082D\u0840-\u085B\u08A0\u08A2-\u08AC\u08E4-\u08FE\u0900-\u0963\u0966-\u096F\u0971-\u0977\u0979-\u097F\u0981-\u0983\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BC-\u09C4\u09C7\u09C8\u09CB-\u09CE\u09D7\u09DC\u09DD\u09DF-\u09E3\u09E6-\u09F1\u0A01-\u0A03\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A3C\u0A3E-\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A59-\u0A5C\u0A5E\u0A66-\u0A75\u0A81-\u0A83\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABC-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AD0\u0AE0-\u0AE3\u0AE6-\u0AEF\u0B01-\u0B03\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3C-\u0B44\u0B47\u0B48\u0B4B-\u0B4D\u0B56\u0B57\u0B5C\u0B5D\u0B5F-\u0B63\u0B66-\u0B6F\u0B71\u0B82\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD0\u0BD7\u0BE6-\u0BEF\u0C01-\u0C03\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C33\u0C35-\u0C39\u0C3D-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C58\u0C59\u0C60-\u0C63\u0C66-\u0C6F\u0C82\u0C83\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBC-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5\u0CD6\u0CDE\u0CE0-\u0CE3\u0CE6-\u0CEF\u0CF1\u0CF2\u0D02\u0D03\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D-\u0D44\u0D46-\u0D48\u0D4A-\u0D4E\u0D57\u0D60-\u0D63\u0D66-\u0D6F\u0D7A-\u0D7F\u0D82\u0D83\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DF2\u0DF3\u0E01-\u0E3A\u0E40-\u0E4E\u0E50-\u0E59\u0E81\u0E82\u0E84\u0E87\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA\u0EAB\u0EAD-\u0EB9\u0EBB-\u0EBD\u0EC0-\u0EC4\u0EC6\u0EC8-\u0ECD\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F18\u0F19\u0F20-\u0F29\u0F35\u0F37\u0F39\u0F3E-\u0F47\u0F49-\u0F6C\u0F71-\u0F84\u0F86-\u0F97\u0F99-\u0FBC\u0FC6\u1000-\u1049\u1050-\u109D\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u135D-\u135F\u1380-\u138F\u13A0-\u13F4\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F0\u1700-\u170C\u170E-\u1714\u1720-\u1734\u1740-\u1753\u1760-\u176C\u176E-\u1770\u1772\u1773\u1780-\u17D3\u17D7\u17DC\u17DD\u17E0-\u17E9\u180B-\u180D\u1810-\u1819\u1820-\u1877\u1880-\u18AA\u18B0-\u18F5\u1900-\u191C\u1920-\u192B\u1930-\u193B\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19D9\u1A00-\u1A1B\u1A20-\u1A5E\u1A60-\u1A7C\u1A7F-\u1A89\u1A90-\u1A99\u1AA7\u1B00-\u1B4B\u1B50-\u1B59\u1B6B-\u1B73\u1B80-\u1BF3\u1C00-\u1C37\u1C40-\u1C49\u1C4D-\u1C7D\u1CD0-\u1CD2\u1CD4-\u1CF6\u1D00-\u1DE6\u1DFC-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u200C\u200D\u203F\u2040\u2054\u2071\u207F\u2090-\u209C\u20D0-\u20DC\u20E1\u20E5-\u20F0\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2160-\u2188\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D7F-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2DE0-\u2DFF\u2E2F\u3005-\u3007\u3021-\u302F\u3031-\u3035\u3038-\u303C\u3041-\u3096\u3099\u309A\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312D\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FCC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66F\uA674-\uA67D\uA67F-\uA697\uA69F-\uA6F1\uA717-\uA71F\uA722-\uA788\uA78B-\uA78E\uA790-\uA793\uA7A0-\uA7AA\uA7F8-\uA827\uA840-\uA873\uA880-\uA8C4\uA8D0-\uA8D9\uA8E0-\uA8F7\uA8FB\uA900-\uA92D\uA930-\uA953\uA960-\uA97C\uA980-\uA9C0\uA9CF-\uA9D9\uAA00-\uAA36\uAA40-\uAA4D\uAA50-\uAA59\uAA60-\uAA76\uAA7A\uAA7B\uAA80-\uAAC2\uAADB-\uAADD\uAAE0-\uAAEF\uAAF2-\uAAF6\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uABC0-\uABEA\uABEC\uABED\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE00-\uFE0F\uFE20-\uFE26\uFE33\uFE34\uFE4D-\uFE4F\uFE70-\uFE74\uFE76-\uFEFC\uFF10-\uFF19\uFF21-\uFF3A\uFF3F\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]/
+        };
+        function isHexDigit2(x) {
+          return x >= "0" && x <= "9" || x >= "A" && x <= "F" || x >= "a" && x <= "f";
+        }
+        function isOctDigit(x) {
+          return x >= "0" && x <= "7";
+        }
+        function isDecDigit(x) {
+          return x >= "0" && x <= "9";
+        }
+        function isBOM(x) {
+          return x.charCodeAt(0) === 65279;
+        }
+        const unescapeMap = {
+          "'": "'",
+          '"': '"',
+          "\\": "\\",
+          b: "\b",
+          f: "\f",
+          n: "\n",
+          r: "\r",
+          t: "	",
+          v: "\v",
+          "/": "/"
+        };
+        const ownsProperty = Object.hasOwn;
+        const emptyObject = {};
+        function parseInternal(input, options) {
+          if (typeof input !== "string" || !(input instanceof String)) {
+            input = String(input);
+          }
+          const json5 = options.mode === "json5";
+          const ignoreBOM = options.ignoreBOM;
+          const ignoreComments = options.ignoreComments || options.mode === "cjson" || json5;
+          const ignoreTrailingCommas = options.ignoreTrailingCommas || json5;
+          const ignoreProtoKey = options.ignoreProtoKey;
+          const ignorePrototypeKeys = options.ignorePrototypeKeys;
+          const allowSingleQuotedStrings = options.allowSingleQuotedStrings || json5;
+          const allowDuplicateObjectKeys = options.allowDuplicateObjectKeys;
+          const reviver = options.reviver;
+          const tokenize2 = options.tokenize;
+          const rawTokens = options.rawTokens;
+          const tokenLocations = options.tokenLocations;
+          const tokenPaths = options.tokenPaths;
+          const isLineTerminator = json5 ? Uni.isLineTerminator : Uni.isLineTerminatorJSON;
+          const isWhiteSpace = json5 ? Uni.isWhiteSpace : Uni.isWhiteSpaceJSON;
+          const inputLength = input.length;
+          let lineNumber = 0;
+          let lineStart = 0;
+          let position = 0;
+          const tokens = [];
+          let startToken;
+          let endToken;
+          let tokenPath;
+          if (tokenize2) {
+            let tokenOffset = null;
+            let tokenLine;
+            let tokenColumn;
+            startToken = function() {
+              if (tokenOffset !== null) throw Error("internal error, token overlap");
+              tokenLine = lineNumber + 1;
+              tokenColumn = position - lineStart + 1;
+              tokenOffset = position;
+            };
+            endToken = function(type, value) {
+              if (tokenOffset !== position) {
+                const token = { type };
+                if (rawTokens) {
+                  token.raw = input.substr(tokenOffset, position - tokenOffset);
+                }
+                if (value !== void 0) {
+                  token.value = value;
+                }
+                if (tokenLocations) {
+                  token.location = {
+                    start: {
+                      column: tokenColumn,
+                      line: tokenLine,
+                      offset: tokenOffset
+                    }
+                  };
+                }
+                if (tokenPaths) {
+                  token.path = tokenPath.slice();
+                }
+                tokens.push(token);
+              }
+              tokenOffset = null;
+              return value;
+            };
+            tokenPaths && (tokenPath = []);
+          }
+          function generateMessage() {
+            let message;
+            if (position < inputLength) {
+              const token = JSON.stringify(input[position]);
+              message = `Unexpected token ${token}`;
+            } else {
+              message = "Unexpected end of input";
+            }
+            return message;
+          }
+          function createError(message) {
+            const column = position - lineStart + 1;
+            ++lineNumber;
+            const texts = getTexts(message, input, position, lineNumber, column);
+            const error = SyntaxError(texts.message);
+            error.reason = message;
+            error.excerpt = texts.excerpt;
+            error.pointer = texts.pointer;
+            error.location = {
+              start: {
+                column,
+                line: lineNumber,
+                offset: position
+              }
+            };
+            return error;
+          }
+          function fail(message) {
+            if (!message) {
+              message = generateMessage();
+            }
+            const error = createError(message);
+            throw error;
+          }
+          function newLine(char) {
+            if (char === "\r" && input[position] === "\n") {
+              ++position;
+            }
+            lineStart = position;
+            ++lineNumber;
+          }
+          function parseGeneric() {
+            if (position < inputLength) {
+              startToken?.();
+              const char = input[position++];
+              if (char === '"' || char === "'" && allowSingleQuotedStrings) {
+                const string = parseString(char);
+                endToken?.("literal", string);
+                return string;
+              }
+              if (char === "{") {
+                endToken?.("symbol", "{");
+                return parseObject();
+              }
+              if (char === "[") {
+                endToken?.("symbol", "[");
+                return parseArray();
+              }
+              if (char === "-" || char === "." || isDecDigit(char) || json5 && (char === "+" || char === "I" || char === "N")) {
+                const number = parseNumber();
+                endToken?.("literal", number);
+                return number;
+              }
+              if (char === "n") {
+                parseKeyword("null");
+                endToken?.("literal", null);
+                return null;
+              }
+              if (char === "t") {
+                parseKeyword("true");
+                endToken?.("literal", true);
+                return true;
+              }
+              if (char === "f") {
+                parseKeyword("false");
+                endToken?.("literal", false);
+                return false;
+              }
+              --position;
+              endToken?.();
+              return void 0;
+            }
+          }
+          function parseKey() {
+            let result;
+            if (position < inputLength) {
+              startToken?.();
+              const char = input[position++];
+              if (char === '"' || char === "'" && allowSingleQuotedStrings) {
+                const string = parseString(char);
+                endToken?.("literal", string);
+                return string;
+              }
+              if (char === "{") {
+                endToken?.("symbol", "{");
+                return parseObject();
+              }
+              if (char === "[") {
+                endToken?.("symbol", "[");
+                return parseArray();
+              }
+              if (char === "." || isDecDigit(char)) {
+                const number = parseNumber(true);
+                endToken?.("literal", number);
+                return number;
+              }
+              if (json5 && Uni.isIdentifierStart(char) || char === "\\" && input[position] === "u") {
+                const rollback = position - 1;
+                result = parseIdentifier();
+                if (result === void 0) {
+                  position = rollback;
+                  endToken?.();
+                  return void 0;
+                }
+                endToken?.("literal", result);
+                return result;
+              }
+              --position;
+              endToken?.();
+              return void 0;
+            }
+          }
+          function skipBOM() {
+            if (isBOM(input)) {
+              startToken?.();
+              ++position;
+              endToken?.("bom");
+            }
+          }
+          function skipWhiteSpace2() {
+            let insideWhiteSpace;
+            function startWhiteSpace() {
+              if (!insideWhiteSpace) {
+                insideWhiteSpace = true;
+                --position;
+                startToken();
+                ++position;
+              }
+            }
+            function endWhiteSpace() {
+              if (insideWhiteSpace) {
+                insideWhiteSpace = false;
+                endToken("whitespace");
+              }
+            }
+            while (position < inputLength) {
+              const char = input[position++];
+              if (isLineTerminator(char)) {
+                startToken && startWhiteSpace();
+                newLine(char);
+              } else if (isWhiteSpace(char)) {
+                startToken && startWhiteSpace();
+              } else if (char === "/" && ignoreComments && (input[position] === "/" || input[position] === "*")) {
+                if (startToken) {
+                  --position;
+                  endWhiteSpace();
+                  startToken();
+                  ++position;
+                }
+                skipComment(input[position++] === "*");
+                endToken?.("comment");
+              } else {
+                --position;
+                break;
+              }
+            }
+            endToken && endWhiteSpace();
+          }
+          function skipComment(multiLine) {
+            while (position < inputLength) {
+              const char = input[position++];
+              if (isLineTerminator(char)) {
+                if (!multiLine) {
+                  --position;
+                  return;
+                }
+                newLine(char);
+              } else if (char === "*" && multiLine) {
+                if (input[position] === "/") {
+                  ++position;
+                  return;
+                }
+              } else {
+              }
+            }
+            if (multiLine) {
+              fail("Unclosed multiline comment");
+            }
+          }
+          function parseKeyword(keyword) {
+            const startPosition = position;
+            for (let i = 1, keywordLength = keyword.length; i < keywordLength; ++i) {
+              if (position >= inputLength || keyword[i] !== input[position]) {
+                position = startPosition - 1;
+                fail();
+              }
+              ++position;
+            }
+          }
+          function parseObject() {
+            let result = {};
+            let isNotEmpty = false;
+            while (position < inputLength) {
+              skipWhiteSpace2();
+              const key = parseKey();
+              if (allowDuplicateObjectKeys === false && ownsProperty(result, key)) {
+                fail(`Duplicate key: "${key}"`);
+              }
+              skipWhiteSpace2();
+              startToken?.();
+              let char = input[position++];
+              endToken?.("symbol", char);
+              if (char === "}" && key === void 0) {
+                if (!ignoreTrailingCommas && isNotEmpty) {
+                  --position;
+                  fail("Trailing comma in object");
+                }
+                return result;
+              }
+              if (char === ":" && key !== void 0) {
+                skipWhiteSpace2();
+                tokenPath?.push(key);
+                let value = parseGeneric();
+                tokenPath?.pop();
+                if (value === void 0) fail(`No value found for key "${key}"`);
+                if (typeof key !== "string") {
+                  if (!json5 || typeof key !== "number") {
+                    fail(`Wrong key type: "${key}"`);
+                  }
+                }
+                if (ignorePrototypeKeys && (key in emptyObject || emptyObject[key] != null) || ignoreProtoKey && key === "__proto__") {
+                } else {
+                  if (reviver) {
+                    value = reviver(key, value);
+                  }
+                  if (value !== void 0) {
+                    isNotEmpty = true;
+                    if (key === "__proto__") {
+                      result = Object.assign(JSON.parse(`{"__proto__":${JSON.stringify(value)}}`), result);
+                    } else {
+                      result[key] = value;
+                    }
+                  }
+                }
+                skipWhiteSpace2();
+                startToken?.();
+                char = input[position++];
+                endToken?.("symbol", char);
+                if (char === ",") {
+                } else if (char === "}") {
+                  return result;
+                } else {
+                  fail();
+                }
+              } else {
+                --position;
+                fail();
+              }
+            }
+            fail();
+          }
+          function parseArray() {
+            const result = [];
+            while (position < inputLength) {
+              skipWhiteSpace2();
+              tokenPath?.push(result.length);
+              let item = parseGeneric();
+              tokenPath?.pop();
+              skipWhiteSpace2();
+              startToken?.();
+              const char = input[position++];
+              endToken?.("symbol", char);
+              if (item !== void 0) {
+                if (reviver) {
+                  item = reviver(String(result.length), item);
+                }
+                if (item === void 0) {
+                  ++result.length;
+                  item = true;
+                } else {
+                  result.push(item);
+                }
+              }
+              if (char === ",") {
+                if (item === void 0) {
+                  fail("Elisions are not supported");
+                }
+              } else if (char === "]") {
+                if (!ignoreTrailingCommas && item === void 0 && result.length) {
+                  --position;
+                  fail("Trailing comma in array");
+                }
+                return result;
+              } else {
+                --position;
+                fail();
+              }
+            }
+          }
+          function parseNumber() {
+            --position;
+            let start = position;
+            let char = input[position++];
+            const toNumber = function(isOctal) {
+              const string = input.substr(start, position - start);
+              let result;
+              if (isOctal) {
+                result = Number.parseInt(string.replace(/^0o?/, ""), 8);
+              } else {
+                result = Number(string);
+              }
+              if (Number.isNaN(result)) {
+                --position;
+                fail(`Bad numeric literal - "${input.substr(start, position - start + 1)}"`);
+              } else if (!json5 && !string.match(/^-?(0|[1-9][0-9]*)(\.[0-9]+)?(e[+-]?[0-9]+)?$/i)) {
+                --position;
+                fail(`Non-json numeric literal - "${input.substr(start, position - start + 1)}"`);
+              } else {
+                return result;
+              }
+            };
+            if (char === "-" || char === "+" && json5) {
+              char = input[position++];
+            }
+            if (char === "N" && json5) {
+              parseKeyword("NaN");
+              return Number.NaN;
+            }
+            if (char === "I" && json5) {
+              parseKeyword("Infinity");
+              return toNumber();
+            }
+            if (char >= "1" && char <= "9") {
+              while (position < inputLength && isDecDigit(input[position])) {
+                ++position;
+              }
+              char = input[position++];
+            }
+            if (char === "0") {
+              char = input[position++];
+              const isOctal = char === "o" || char === "O" || isOctDigit(char);
+              const isHex = char === "x" || char === "X";
+              if (json5 && (isOctal || isHex)) {
+                while (position < inputLength && (isHex ? isHexDigit2 : isOctDigit)(input[position])) {
+                  ++position;
+                }
+                let sign = 1;
+                if (input[start] === "-") {
+                  sign = -1;
+                  ++start;
+                } else if (input[start] === "+") {
+                  ++start;
+                }
+                return sign * toNumber(isOctal);
+              }
+            }
+            if (char === ".") {
+              while (position < inputLength && isDecDigit(input[position])) {
+                ++position;
+              }
+              char = input[position++];
+            }
+            if (char === "e" || char === "E") {
+              char = input[position++];
+              if (char === "-" || char === "+") {
+                ++position;
+              }
+              while (position < inputLength && isDecDigit(input[position])) {
+                ++position;
+              }
+              char = input[position++];
+            }
+            --position;
+            return toNumber();
+          }
+          function parseIdentifier() {
+            --position;
+            let result = "";
+            while (position < inputLength) {
+              let char = input[position++];
+              if (char === "\\" && input[position] === "u" && isHexDigit2(input[position + 1]) && isHexDigit2(input[position + 2]) && isHexDigit2(input[position + 3]) && isHexDigit2(input[position + 4])) {
+                char = String.fromCharCode(Number.parseInt(input.substr(position + 1, 4), 16));
+                position += 5;
+              }
+              if (result.length) {
+                if (Uni.isIdentifierPart(char)) {
+                  result += char;
+                } else {
+                  --position;
+                  return result;
+                }
+              } else {
+                if (Uni.isIdentifierStart(char)) {
+                  result += char;
+                } else {
+                  return void 0;
+                }
+              }
+            }
+            fail();
+          }
+          function parseString(endChar) {
+            let result = "";
+            while (position < inputLength) {
+              let char = input[position++];
+              if (char === endChar) {
+                return result;
+              }
+              if (char === "\\") {
+                if (position >= inputLength) {
+                  fail();
+                }
+                char = input[position++];
+                if (unescapeMap[char] && (json5 || char !== "v" && (char !== "'" || allowSingleQuotedStrings))) {
+                  result += unescapeMap[char];
+                } else if (json5 && isLineTerminator(char)) {
+                  newLine(char);
+                } else if (char === "u" || char === "x" && json5) {
+                  const count = char === "u" ? 4 : 2;
+                  for (let i = 0; i < count; ++i) {
+                    if (position >= inputLength) {
+                      fail();
+                    }
+                    if (!isHexDigit2(input[position])) {
+                      fail("Bad escape sequence");
+                    }
+                    position++;
+                  }
+                  result += String.fromCharCode(Number.parseInt(input.substr(position - count, count), 16));
+                } else if (json5 && isOctDigit(char)) {
+                  let digits;
+                  if (char < "4" && isOctDigit(input[position]) && isOctDigit(input[position + 1])) {
+                    digits = 3;
+                  } else if (isOctDigit(input[position])) {
+                    digits = 2;
+                  } else {
+                    digits = 1;
+                  }
+                  position += digits - 1;
+                  result += String.fromCharCode(Number.parseInt(input.substr(position - digits, digits), 8));
+                } else if (json5) {
+                  result += char;
+                } else {
+                  --position;
+                  fail();
+                }
+              } else if (isLineTerminator(char)) {
+                fail();
+              } else {
+                if (!json5 && char.charCodeAt(0) < 32) {
+                  --position;
+                  fail("Unexpected control character");
+                }
+                result += char;
+              }
+            }
+            fail();
+          }
+          if (ignoreBOM) {
+            skipBOM();
+          }
+          skipWhiteSpace2();
+          let returnValue = parseGeneric();
+          if (returnValue !== void 0 || position < inputLength) {
+            skipWhiteSpace2();
+            if (position >= inputLength) {
+              if (reviver) {
+                returnValue = reviver("", returnValue);
+              }
+              return tokenize2 ? tokens : returnValue;
+            }
+            fail();
+          } else {
+            if (position) {
+              fail("No data, only a whitespace");
+            } else {
+              fail("No data, empty input");
+            }
+          }
+        }
+        function parseCustom(input, options) {
+          if (typeof options === "function") {
+            options = {
+              reviver: options
+            };
+          } else if (!options) {
+            options = {};
+          }
+          return parseInternal(input, options);
+        }
+        function tokenize(input, options) {
+          if (!options) {
+            options = {};
+          }
+          const oldTokenize = options.tokenize;
+          options.tokenize = true;
+          const tokens = parseInternal(input, options);
+          options.tokenize = oldTokenize;
+          return tokens;
+        }
+        function escapePointerToken(token) {
+          return token.toString().replace(/~/g, "~0").replace(/\//g, "~1");
+        }
+        function pathToPointer(tokens) {
+          if (tokens.length === 0) {
+            return "";
+          }
+          return `/${tokens.map(escapePointerToken).join("/")}`;
+        }
+        function unescapePointerToken(token) {
+          return token.replace(/~1/g, "/").replace(/~0/g, "~");
+        }
+        function pointerToPath(pointer) {
+          if (pointer === "") {
+            return [];
+          }
+          if (pointer[0] !== "/") {
+            throw new Error('Missing initial "/" in the reference');
+          }
+          return pointer.substr(1).split("/").map(unescapePointerToken);
+        }
+        function getLineAndColumn(input, offset2) {
+          const lines = input.substr(0, offset2).split(/\r?\n/);
+          const line = lines.length;
+          const column = lines[line - 1].length + 1;
+          return {
+            line,
+            column
+          };
+        }
+        function getOffset(input, line, column) {
+          if (line > 1) {
+            const breaks = /\r?\n/g;
+            let match;
+            while (match = breaks.exec(input)) {
+              if (--line === 1) {
+                return match.index + column;
+              }
+            }
+          }
+          return column - 1;
+        }
+        function pastInput(input, offset2) {
+          const start = Math.max(0, offset2 - 20);
+          const previous = input.substr(start, offset2 - start);
+          return (offset2 > 20 ? "..." : "") + previous.replace(/\r?\n/g, "");
+        }
+        function upcomingInput(input, offset2) {
+          let start = Math.max(0, offset2 - 20);
+          start += offset2 - start;
+          const rest = input.length - start;
+          const next2 = input.substr(start, Math.min(20, rest));
+          return next2.replace(/\r?\n/g, "") + (rest > 20 ? "..." : "");
+        }
+        function getPositionContext(input, offset2) {
+          const past = pastInput(input, offset2);
+          const upcoming = upcomingInput(input, offset2);
+          const pointer = `${new Array(past.length + 1).join("-")}^`;
+          return {
+            excerpt: past + upcoming,
+            pointer
+          };
+        }
+        function getReason(error) {
+          let message = error.message.replace("JSON.parse: ", "").replace("JSON Parse error: ", "");
+          const firstCharacter = message.charAt(0);
+          if (firstCharacter >= "a") {
+            message = firstCharacter.toUpperCase() + message.substr(1);
+          }
+          return message;
+        }
+        function getLocationOnV8(input, reason) {
+          const match = / in JSON at position (\d+)$/.exec(reason);
+          if (match) {
+            const offset2 = +match[1];
+            const location = getLineAndColumn(input, offset2);
+            return {
+              offset: offset2,
+              line: location.line,
+              column: location.column,
+              reason: reason.substr(0, match.index)
+            };
+          }
+        }
+        function checkUnexpectedEndOnV8(input, reason) {
+          const match = / end of JSON input$/.exec(reason);
+          if (match) {
+            const offset2 = input.length;
+            const location = getLineAndColumn(input, offset2);
+            return {
+              offset: offset2,
+              line: location.line,
+              column: location.column,
+              reason: reason.substr(0, match.index + 4)
+            };
+          }
+        }
+        function getLocationOnSpiderMonkey(input, reason) {
+          const match = / at line (\d+) column (\d+) of the JSON data$/.exec(reason);
+          if (match) {
+            const line = +match[1];
+            const column = +match[2];
+            const offset2 = getOffset(input, line, column);
+            return {
+              offset: offset2,
+              line,
+              column,
+              reason: reason.substr(0, match.index)
+            };
+          }
+        }
+        function getTexts(reason, input, offset2, line, column) {
+          const position = getPositionContext(input, offset2);
+          const excerpt = position.excerpt;
+          let message;
+          let pointer;
+          if (typeof line === "number") {
+            pointer = position.pointer;
+            message = `Parse error on line ${line}, column ${column}:
+${excerpt}
+${pointer}
+${reason}`;
+          } else {
+            message = `Parse error in JSON input:
+${excerpt}
+${reason}`;
+          }
+          return {
+            message,
+            excerpt,
+            pointer
+          };
+        }
+        function improveNativeError(input, error) {
+          let reason = getReason(error);
+          const location = getLocationOnV8(input, reason) || checkUnexpectedEndOnV8(input, reason) || getLocationOnSpiderMonkey(input, reason);
+          let offset2;
+          let line;
+          let column;
+          if (location) {
+            offset2 = location.offset;
+            line = location.line;
+            column = location.column;
+            reason = location.reason;
+          } else {
+            offset2 = 0;
+          }
+          error.reason = reason;
+          const texts = getTexts(reason, input, offset2, line, column);
+          error.message = texts.message;
+          error.excerpt = texts.excerpt;
+          if (texts.pointer) {
+            error.pointer = texts.pointer;
+            error.location = {
+              start: {
+                column,
+                line,
+                offset: offset2
+              }
+            };
+          }
+          return error;
+        }
+        function parseNative(input, reviver) {
+          try {
+            return JSON.parse(input, reviver);
+          } catch (error) {
+            const newError = improveNativeError(input, error);
+            if (error.location) throw newError;
+            return parseCustom(input, reviver);
+          }
+        }
+        const isSafari2 = typeof navigator !== "undefined" && /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
+        const oldNode = typeof process !== "undefined" && process.version.startsWith("v4.");
+        function needsCustomParser(options) {
+          return options.ignoreBOM || options.ignoreComments || options.ignoreTrailingCommas || options.allowSingleQuotedStrings || options.allowDuplicateObjectKeys === false || options.ignoreProtoKey || options.ignorePrototypeKeys || options.mode === "cjson" || options.mode === "json5" || isSafari2 || oldNode;
+        }
+        function getReviver(options) {
+          if (typeof options === "function") {
+            return options;
+          }
+          if (options) {
+            return options.reviver;
+          }
+        }
+        function parse10(input, options) {
+          options || (options = {});
+          return needsCustomParser(options) ? parseCustom(input, options) : parseNative(input, getReviver(options));
+        }
+        exports2.parse = parse10;
+        exports2.tokenize = tokenize;
+        exports2.pathToPointer = pathToPointer;
+        exports2.pointerToPath = pointerToPath;
+        exports2.parseNative = parseNative;
+        exports2.parseCustom = parseCustom;
+        exports2.getErrorTexts = getTexts;
+        Object.defineProperty(exports2, "__esModule", { value: true });
+      });
+    }
+  });
+
   // node_modules/sjcl/sjcl.js
   var require_sjcl = __commonJS({
     "node_modules/sjcl/sjcl.js"(exports, module) {
@@ -85830,9 +86659,9 @@
       return line.replace(/[ \t]+/g, " ").trim();
     });
     plainText = processedLines.join("\n");
-    codeBlocks.forEach((code2, index2) => {
+    codeBlocks.forEach((code, index2) => {
       const placeholder = `<<<CODE_BLOCK_${index2}>>>`;
-      plainText = plainText.replace(placeholder, "\n\n" + code2);
+      plainText = plainText.replace(placeholder, "\n\n" + code);
     });
     plainText = plainText.replace(/\n{3,}/g, "\n\n").trim();
     const blobText = new Blob([plainText], { type: "text/plain" });
@@ -86711,8 +87540,8 @@
   function parseSvgSize(svgString) {
     const defaultSize = uiState6.textChat.defaults.defaultSvgIconSize;
     if (!svgString) return [defaultSize, defaultSize];
-    const parser2 = new DOMParser();
-    const svgDoc = parser2.parseFromString(svgString, "image/svg+xml");
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
     const svgElement = svgDoc.querySelector("svg");
     const width = svgElement.getAttribute("width");
     const height = svgElement.getAttribute("height");
@@ -90038,18 +90867,18 @@
   }
   var hljsTheme = false;
   function initHighlightJs(theme, customDocument) {
-    const doc2 = customDocument || document;
+    const doc = customDocument || document;
     const hljsStylesId = `alan-hljs-styles-${theme}`;
-    if (hljsTheme === theme && doc2.getElementById(hljsStylesId)) return;
+    if (hljsTheme === theme && doc.getElementById(hljsStylesId)) return;
     hljsTheme = theme;
-    var style = doc2.createElement("style");
+    var style = doc.createElement("style");
     style.textContent = highlightJsCss(theme);
     style.id = hljsStylesId;
-    doc2.getElementsByTagName("head")[0].appendChild(style);
-    var lightHLJSOnlyStyle = doc2.createElement("style");
+    doc.getElementsByTagName("head")[0].appendChild(style);
+    var lightHLJSOnlyStyle = doc.createElement("style");
     lightHLJSOnlyStyle.textContent = highlightJsCssForOnlyLightTheme();
     lightHLJSOnlyStyle.id = `alan-hljs-styles-light-only`;
-    doc2.getElementsByTagName("head")[0].appendChild(lightHLJSOnlyStyle);
+    doc.getElementsByTagName("head")[0].appendChild(lightHLJSOnlyStyle);
   }
   function highlightCode(msgsHolder) {
     if (window.hljs) {
@@ -90532,17 +91361,17 @@ code.hljs {
     }
     return pathSegments.join(" > ");
   }
-  function collectScrollableElementStates(doc2 = document) {
-    if (typeof doc2 === "undefined") {
+  function collectScrollableElementStates(doc = document) {
+    if (typeof doc === "undefined") {
       return [];
     }
-    const win = doc2.defaultView || window;
+    const win = doc.defaultView || window;
     const HTMLElementClass = win.HTMLElement;
     const elements = /* @__PURE__ */ new Set();
-    doc2.querySelectorAll("*").forEach((el) => elements.add(el));
-    if (doc2.body) elements.add(doc2.body);
-    if (doc2.documentElement) elements.add(doc2.documentElement);
-    if (doc2.scrollingElement) elements.add(doc2.scrollingElement);
+    doc.querySelectorAll("*").forEach((el) => elements.add(el));
+    if (doc.body) elements.add(doc.body);
+    if (doc.documentElement) elements.add(doc.documentElement);
+    if (doc.scrollingElement) elements.add(doc.scrollingElement);
     const scrollableStates = [];
     const overflowRegex = /(auto|scroll|overlay)/i;
     elements.forEach((element) => {
@@ -90559,7 +91388,7 @@ code.hljs {
       const computedStyle = win.getComputedStyle(element);
       const overflowY = computedStyle.overflowY;
       const overflowX = computedStyle.overflowX;
-      const isRootElement = element === doc2.body || element === doc2.documentElement || element === doc2.scrollingElement;
+      const isRootElement = element === doc.body || element === doc.documentElement || element === doc.scrollingElement;
       const canScrollVertically = scrollHeight - clientHeight > 1;
       const canScrollHorizontally = scrollWidth - clientWidth > 1;
       const allowsVerticalScroll = isRootElement || overflowRegex.test(overflowY);
@@ -90590,9 +91419,9 @@ code.hljs {
     const crossOriginIframes = [];
     for (const iframe of iframes) {
       try {
-        const doc2 = iframe.contentDocument;
-        if (doc2 && doc2.documentElement) {
-          const clone2 = doc2.documentElement.cloneNode(true);
+        const doc = iframe.contentDocument;
+        if (doc && doc.documentElement) {
+          const clone2 = doc.documentElement.cloneNode(true);
           clone2.querySelectorAll("script").forEach((s) => s.remove());
           directResults.push({ id: iframe.id, html: clone2.outerHTML });
         } else {
@@ -90979,67 +91808,67 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
   var keywordRelationalOperator = /^in(stanceof)?$/;
   var nonASCIIidentifierStart = new RegExp("[" + nonASCIIidentifierStartChars + "]");
   var nonASCIIidentifier = new RegExp("[" + nonASCIIidentifierStartChars + nonASCIIidentifierChars + "]");
-  function isInAstralSet(code2, set) {
+  function isInAstralSet(code, set) {
     var pos = 65536;
     for (var i = 0; i < set.length; i += 2) {
       pos += set[i];
-      if (pos > code2) {
+      if (pos > code) {
         return false;
       }
       pos += set[i + 1];
-      if (pos >= code2) {
+      if (pos >= code) {
         return true;
       }
     }
     return false;
   }
-  function isIdentifierStart(code2, astral) {
-    if (code2 < 65) {
-      return code2 === 36;
+  function isIdentifierStart(code, astral) {
+    if (code < 65) {
+      return code === 36;
     }
-    if (code2 < 91) {
+    if (code < 91) {
       return true;
     }
-    if (code2 < 97) {
-      return code2 === 95;
+    if (code < 97) {
+      return code === 95;
     }
-    if (code2 < 123) {
+    if (code < 123) {
       return true;
     }
-    if (code2 <= 65535) {
-      return code2 >= 170 && nonASCIIidentifierStart.test(String.fromCharCode(code2));
+    if (code <= 65535) {
+      return code >= 170 && nonASCIIidentifierStart.test(String.fromCharCode(code));
     }
     if (astral === false) {
       return false;
     }
-    return isInAstralSet(code2, astralIdentifierStartCodes);
+    return isInAstralSet(code, astralIdentifierStartCodes);
   }
-  function isIdentifierChar(code2, astral) {
-    if (code2 < 48) {
-      return code2 === 36;
+  function isIdentifierChar(code, astral) {
+    if (code < 48) {
+      return code === 36;
     }
-    if (code2 < 58) {
+    if (code < 58) {
       return true;
     }
-    if (code2 < 65) {
+    if (code < 65) {
       return false;
     }
-    if (code2 < 91) {
+    if (code < 91) {
       return true;
     }
-    if (code2 < 97) {
-      return code2 === 95;
+    if (code < 97) {
+      return code === 95;
     }
-    if (code2 < 123) {
+    if (code < 123) {
       return true;
     }
-    if (code2 <= 65535) {
-      return code2 >= 170 && nonASCIIidentifier.test(String.fromCharCode(code2));
+    if (code <= 65535) {
+      return code >= 170 && nonASCIIidentifier.test(String.fromCharCode(code));
     }
     if (astral === false) {
       return false;
     }
-    return isInAstralSet(code2, astralIdentifierStartCodes) || isInAstralSet(code2, astralIdentifierCodes);
+    return isInAstralSet(code, astralIdentifierStartCodes) || isInAstralSet(code, astralIdentifierCodes);
   }
   var TokenType3 = function TokenType4(label, conf) {
     if (conf === void 0) conf = {};
@@ -91161,15 +91990,15 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
   };
   var lineBreak = /\r\n?|\n|\u2028|\u2029/;
   var lineBreakG = new RegExp(lineBreak.source, "g");
-  function isNewLine(code2) {
-    return code2 === 10 || code2 === 13 || code2 === 8232 || code2 === 8233;
+  function isNewLine(code) {
+    return code === 10 || code === 13 || code === 8232 || code === 8233;
   }
-  function nextLineBreak(code2, from, end2) {
-    if (end2 === void 0) end2 = code2.length;
+  function nextLineBreak(code, from, end2) {
+    if (end2 === void 0) end2 = code.length;
     for (var i = from; i < end2; i++) {
-      var next2 = code2.charCodeAt(i);
+      var next2 = code.charCodeAt(i);
       if (isNewLine(next2)) {
-        return i < end2 - 1 && next2 === 13 && code2.charCodeAt(i + 1) === 10 ? i + 2 : i + 1;
+        return i < end2 - 1 && next2 === 13 && code.charCodeAt(i + 1) === 10 ? i + 2 : i + 1;
       }
     }
     return -1;
@@ -91189,12 +92018,12 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
   function wordsRegexp(words) {
     return regexpCache[words] || (regexpCache[words] = new RegExp("^(?:" + words.replace(/ /g, "|") + ")$"));
   }
-  function codePointToString(code2) {
-    if (code2 <= 65535) {
-      return String.fromCharCode(code2);
+  function codePointToString(code) {
+    if (code <= 65535) {
+      return String.fromCharCode(code);
     }
-    code2 -= 65536;
-    return String.fromCharCode((code2 >> 10) + 55296, (code2 & 1023) + 56320);
+    code -= 65536;
+    return String.fromCharCode((code >> 10) + 55296, (code & 1023) + 56320);
   }
   var loneSurrogate = /(?:[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])/;
   var Position = function Position2(line, col) {
@@ -91502,9 +92331,9 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
     return new this(options, input).parse();
   };
   Parser4.parseExpressionAt = function parseExpressionAt(input, pos, options) {
-    var parser2 = new this(options, input, pos);
-    parser2.nextToken();
-    return parser2.parseExpression();
+    var parser = new this(options, input, pos);
+    parser.nextToken();
+    return parser.parseExpression();
   };
   Parser4.tokenizer = function tokenizer(input, options) {
     return new this(options, input);
@@ -94301,17 +95130,17 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
       }
     }
   };
-  var Node3 = function Node4(parser2, pos, loc) {
+  var Node3 = function Node4(parser, pos, loc) {
     this.type = "";
     this.start = pos;
     this.end = 0;
-    if (parser2.options.locations) {
-      this.loc = new SourceLocation(parser2, loc);
+    if (parser.options.locations) {
+      this.loc = new SourceLocation(parser, loc);
     }
-    if (parser2.options.directSourceFile) {
-      this.sourceFile = parser2.options.directSourceFile;
+    if (parser.options.directSourceFile) {
+      this.sourceFile = parser.options.directSourceFile;
     }
-    if (parser2.options.ranges) {
+    if (parser.options.ranges) {
       this.range = [pos, 0];
     }
   };
@@ -94425,10 +95254,10 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
   BranchID.prototype.sibling = function sibling() {
     return new BranchID(this.parent, this.base);
   };
-  var RegExpValidationState = function RegExpValidationState2(parser2) {
-    this.parser = parser2;
-    this.validFlags = "gim" + (parser2.options.ecmaVersion >= 6 ? "uy" : "") + (parser2.options.ecmaVersion >= 9 ? "s" : "") + (parser2.options.ecmaVersion >= 13 ? "d" : "") + (parser2.options.ecmaVersion >= 15 ? "v" : "");
-    this.unicodeProperties = data2[parser2.options.ecmaVersion >= 14 ? 14 : parser2.options.ecmaVersion];
+  var RegExpValidationState = function RegExpValidationState2(parser) {
+    this.parser = parser;
+    this.validFlags = "gim" + (parser.options.ecmaVersion >= 6 ? "uy" : "") + (parser.options.ecmaVersion >= 9 ? "s" : "") + (parser.options.ecmaVersion >= 13 ? "d" : "") + (parser.options.ecmaVersion >= 15 ? "v" : "");
+    this.unicodeProperties = data2[parser.options.ecmaVersion >= 14 ? 14 : parser.options.ecmaVersion];
     this.source = "";
     this.flags = "";
     this.start = 0;
@@ -95761,19 +96590,19 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
       this.readToken(this.fullCharCodeAtPos());
     }
   };
-  pp.readToken = function(code2) {
-    if (isIdentifierStart(code2, this.options.ecmaVersion >= 6) || code2 === 92) {
+  pp.readToken = function(code) {
+    if (isIdentifierStart(code, this.options.ecmaVersion >= 6) || code === 92) {
       return this.readWord();
     }
-    return this.getTokenFromCode(code2);
+    return this.getTokenFromCode(code);
   };
   pp.fullCharCodeAtPos = function() {
-    var code2 = this.input.charCodeAt(this.pos);
-    if (code2 <= 55295 || code2 >= 56320) {
-      return code2;
+    var code = this.input.charCodeAt(this.pos);
+    if (code <= 55295 || code >= 56320) {
+      return code;
     }
     var next2 = this.input.charCodeAt(this.pos + 1);
-    return next2 <= 56319 || next2 >= 57344 ? code2 : (code2 << 10) + next2 - 56613888;
+    return next2 <= 56319 || next2 >= 57344 ? code : (code << 10) + next2 - 56613888;
   };
   pp.skipBlockComment = function() {
     var startLoc = this.options.onComment && this.curPosition();
@@ -95894,11 +96723,11 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
     }
     return this.finishOp(types$1.slash, 1);
   };
-  pp.readToken_mult_modulo_exp = function(code2) {
+  pp.readToken_mult_modulo_exp = function(code) {
     var next2 = this.input.charCodeAt(this.pos + 1);
     var size = 1;
-    var tokentype = code2 === 42 ? types$1.star : types$1.modulo;
-    if (this.options.ecmaVersion >= 7 && code2 === 42 && next2 === 42) {
+    var tokentype = code === 42 ? types$1.star : types$1.modulo;
+    if (this.options.ecmaVersion >= 7 && code === 42 && next2 === 42) {
       ++size;
       tokentype = types$1.starstar;
       next2 = this.input.charCodeAt(this.pos + 2);
@@ -95908,21 +96737,21 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
     }
     return this.finishOp(tokentype, size);
   };
-  pp.readToken_pipe_amp = function(code2) {
+  pp.readToken_pipe_amp = function(code) {
     var next2 = this.input.charCodeAt(this.pos + 1);
-    if (next2 === code2) {
+    if (next2 === code) {
       if (this.options.ecmaVersion >= 12) {
         var next22 = this.input.charCodeAt(this.pos + 2);
         if (next22 === 61) {
           return this.finishOp(types$1.assign, 3);
         }
       }
-      return this.finishOp(code2 === 124 ? types$1.logicalOR : types$1.logicalAND, 2);
+      return this.finishOp(code === 124 ? types$1.logicalOR : types$1.logicalAND, 2);
     }
     if (next2 === 61) {
       return this.finishOp(types$1.assign, 2);
     }
-    return this.finishOp(code2 === 124 ? types$1.bitwiseOR : types$1.bitwiseAND, 1);
+    return this.finishOp(code === 124 ? types$1.bitwiseOR : types$1.bitwiseAND, 1);
   };
   pp.readToken_caret = function() {
     var next2 = this.input.charCodeAt(this.pos + 1);
@@ -95931,9 +96760,9 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
     }
     return this.finishOp(types$1.bitwiseXOR, 1);
   };
-  pp.readToken_plus_min = function(code2) {
+  pp.readToken_plus_min = function(code) {
     var next2 = this.input.charCodeAt(this.pos + 1);
-    if (next2 === code2) {
+    if (next2 === code) {
       if (next2 === 45 && !this.inModule && this.input.charCodeAt(this.pos + 2) === 62 && (this.lastTokEnd === 0 || lineBreak.test(this.input.slice(this.lastTokEnd, this.pos)))) {
         this.skipLineComment(3);
         this.skipSpace();
@@ -95946,17 +96775,17 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
     }
     return this.finishOp(types$1.plusMin, 1);
   };
-  pp.readToken_lt_gt = function(code2) {
+  pp.readToken_lt_gt = function(code) {
     var next2 = this.input.charCodeAt(this.pos + 1);
     var size = 1;
-    if (next2 === code2) {
-      size = code2 === 62 && this.input.charCodeAt(this.pos + 2) === 62 ? 3 : 2;
+    if (next2 === code) {
+      size = code === 62 && this.input.charCodeAt(this.pos + 2) === 62 ? 3 : 2;
       if (this.input.charCodeAt(this.pos + size) === 61) {
         return this.finishOp(types$1.assign, size + 1);
       }
       return this.finishOp(types$1.bitShift, size);
     }
-    if (next2 === 33 && code2 === 60 && !this.inModule && this.input.charCodeAt(this.pos + 2) === 45 && this.input.charCodeAt(this.pos + 3) === 45) {
+    if (next2 === 33 && code === 60 && !this.inModule && this.input.charCodeAt(this.pos + 2) === 45 && this.input.charCodeAt(this.pos + 3) === 45) {
       this.skipLineComment(4);
       this.skipSpace();
       return this.nextToken();
@@ -95966,16 +96795,16 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
     }
     return this.finishOp(types$1.relational, size);
   };
-  pp.readToken_eq_excl = function(code2) {
+  pp.readToken_eq_excl = function(code) {
     var next2 = this.input.charCodeAt(this.pos + 1);
     if (next2 === 61) {
       return this.finishOp(types$1.equality, this.input.charCodeAt(this.pos + 2) === 61 ? 3 : 2);
     }
-    if (code2 === 61 && next2 === 62 && this.options.ecmaVersion >= 6) {
+    if (code === 61 && next2 === 62 && this.options.ecmaVersion >= 6) {
       this.pos += 2;
       return this.finishToken(types$1.arrow);
     }
-    return this.finishOp(code2 === 61 ? types$1.eq : types$1.prefix, 1);
+    return this.finishOp(code === 61 ? types$1.eq : types$1.prefix, 1);
   };
   pp.readToken_question = function() {
     var ecmaVersion = this.options.ecmaVersion;
@@ -96001,18 +96830,18 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
   };
   pp.readToken_numberSign = function() {
     var ecmaVersion = this.options.ecmaVersion;
-    var code2 = 35;
+    var code = 35;
     if (ecmaVersion >= 13) {
       ++this.pos;
-      code2 = this.fullCharCodeAtPos();
-      if (isIdentifierStart(code2, true) || code2 === 92) {
+      code = this.fullCharCodeAtPos();
+      if (isIdentifierStart(code, true) || code === 92) {
         return this.finishToken(types$1.privateId, this.readWord1());
       }
     }
-    this.raise(this.pos, "Unexpected character '" + codePointToString(code2) + "'");
+    this.raise(this.pos, "Unexpected character '" + codePointToString(code) + "'");
   };
-  pp.getTokenFromCode = function(code2) {
-    switch (code2) {
+  pp.getTokenFromCode = function(code) {
+    switch (code) {
       // The interpretation of a dot depends on whether it is followed
       // by a digit or another two dots.
       case 46:
@@ -96079,7 +96908,7 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
       // Quotes produce strings.
       case 34:
       case 39:
-        return this.readString(code2);
+        return this.readString(code);
       // Operators are parsed inline in tiny state machines. '=' (61) is
       // often referred to. `finishOp` simply skips the amount of
       // characters it is given as second argument, and returns a token
@@ -96088,21 +96917,21 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
         return this.readToken_slash();
       case 37:
       case 42:
-        return this.readToken_mult_modulo_exp(code2);
+        return this.readToken_mult_modulo_exp(code);
       case 124:
       case 38:
-        return this.readToken_pipe_amp(code2);
+        return this.readToken_pipe_amp(code);
       case 94:
         return this.readToken_caret();
       case 43:
       case 45:
-        return this.readToken_plus_min(code2);
+        return this.readToken_plus_min(code);
       case 60:
       case 62:
-        return this.readToken_lt_gt(code2);
+        return this.readToken_lt_gt(code);
       case 61:
       case 33:
-        return this.readToken_eq_excl(code2);
+        return this.readToken_eq_excl(code);
       case 63:
         return this.readToken_question();
       case 126:
@@ -96110,7 +96939,7 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
       case 35:
         return this.readToken_numberSign();
     }
-    this.raise(this.pos, "Unexpected character '" + codePointToString(code2) + "'");
+    this.raise(this.pos, "Unexpected character '" + codePointToString(code) + "'");
   };
   pp.finishOp = function(type, size) {
     var str = this.input.slice(this.pos, this.pos + size);
@@ -96164,8 +96993,8 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
     var isLegacyOctalNumericLiteral = maybeLegacyOctalNumericLiteral && this.input.charCodeAt(this.pos) === 48;
     var start = this.pos, total = 0, lastCode = 0;
     for (var i = 0, e = len == null ? Infinity : len; i < e; ++i, ++this.pos) {
-      var code2 = this.input.charCodeAt(this.pos), val2 = void 0;
-      if (allowSeparators && code2 === 95) {
+      var code = this.input.charCodeAt(this.pos), val2 = void 0;
+      if (allowSeparators && code === 95) {
         if (isLegacyOctalNumericLiteral) {
           this.raiseRecoverable(this.pos, "Numeric separator is not allowed in legacy octal numeric literals");
         }
@@ -96175,22 +97004,22 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
         if (i === 0) {
           this.raiseRecoverable(this.pos, "Numeric separator is not allowed at the first of digits");
         }
-        lastCode = code2;
+        lastCode = code;
         continue;
       }
-      if (code2 >= 97) {
-        val2 = code2 - 97 + 10;
-      } else if (code2 >= 65) {
-        val2 = code2 - 65 + 10;
-      } else if (code2 >= 48 && code2 <= 57) {
-        val2 = code2 - 48;
+      if (code >= 97) {
+        val2 = code - 97 + 10;
+      } else if (code >= 65) {
+        val2 = code - 65 + 10;
+      } else if (code >= 48 && code <= 57) {
+        val2 = code - 48;
       } else {
         val2 = Infinity;
       }
       if (val2 >= radix) {
         break;
       }
-      lastCode = code2;
+      lastCode = code;
       total = total * radix + val2;
     }
     if (allowSeparators && lastCode === 95) {
@@ -96270,21 +97099,21 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
     return this.finishToken(types$1.num, val2);
   };
   pp.readCodePoint = function() {
-    var ch = this.input.charCodeAt(this.pos), code2;
+    var ch = this.input.charCodeAt(this.pos), code;
     if (ch === 123) {
       if (this.options.ecmaVersion < 6) {
         this.unexpected();
       }
       var codePos = ++this.pos;
-      code2 = this.readHexChar(this.input.indexOf("}", this.pos) - this.pos);
+      code = this.readHexChar(this.input.indexOf("}", this.pos) - this.pos);
       ++this.pos;
-      if (code2 > 1114111) {
+      if (code > 1114111) {
         this.invalidStringToken(codePos, "Code point out of bounds");
       }
     } else {
-      code2 = this.readHexChar(4);
+      code = this.readHexChar(4);
     }
-    return code2;
+    return code;
   };
   pp.readString = function(quote) {
     var out = "", chunkStart = ++this.pos;
@@ -97549,21 +98378,21 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
         };
       }
     }
-    write(code2) {
-      this.output += code2;
+    write(code) {
+      this.output += code;
     }
-    writeToStream(code2) {
-      this.output.write(code2);
+    writeToStream(code) {
+      this.output.write(code);
     }
-    writeAndMap(code2, node) {
-      this.output += code2;
-      this.map(code2, node);
+    writeAndMap(code, node) {
+      this.output += code;
+      this.map(code, node);
     }
-    writeToStreamAndMap(code2, node) {
-      this.output.write(code2);
-      this.map(code2, node);
+    writeToStreamAndMap(code, node) {
+      this.output.write(code);
+      this.map(code, node);
     }
-    map(code2, node) {
+    map(code, node) {
       if (node != null) {
         const { type } = node;
         if (type[0] === "L" && type[2] === "n") {
@@ -97578,10 +98407,10 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
           this.sourceMap.addMapping(mapping);
         }
         if (type[0] === "T" && type[8] === "E" || type[0] === "L" && type[1] === "i" && typeof node.value === "string") {
-          const { length: length2 } = code2;
+          const { length: length2 } = code;
           let { column, line } = this;
           for (let i = 0; i < length2; i++) {
-            if (code2[i] === "\n") {
+            if (code[i] === "\n") {
               column = 0;
               line++;
             } else {
@@ -97593,10 +98422,10 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
           return;
         }
       }
-      const { length } = code2;
+      const { length } = code;
       const { lineEnd } = this;
       if (length > 0) {
-        if (this.lineEndSize > 0 && (lineEnd.length === 1 ? code2[length - 1] === lineEnd : code2.endsWith(lineEnd))) {
+        if (this.lineEndSize > 0 && (lineEnd.length === 1 ? code[length - 1] === lineEnd : code.endsWith(lineEnd))) {
           this.line += this.lineEndSize;
           this.column = 0;
         } else {
@@ -97615,14 +98444,24 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
   }
 
   // alan_btn/src/textChat/saveChatStateToFile.ts
-  function extractFunctionWithRegex(code2, functionName) {
+  var import_jsonlint = __toESM(require_jsonlint());
+  function smartJSONParse(str, errorLogger) {
+    try {
+      return (0, import_jsonlint.parse)(str, {
+        mode: "json5"
+      });
+    } catch (e) {
+      errorLogger("JSON parse error:", e);
+    }
+  }
+  function extractFunctionWithRegex(code, functionName) {
     const regex = new RegExp(`(?:async\\s+)?function\\s+${functionName}\\s*\\([^)]*\\)\\s*{(?:[^{}]*|{(?:[^{}]*|{[^{}]*})*})*};?`, "gs");
-    const match = code2.match(regex);
+    const match = code.match(regex);
     return match ? match[0] : null;
   }
-  function extractFunction(code2, functionName, errorLogger2) {
+  function extractFunction(code, functionName, errorLogger) {
     try {
-      const ast = parse8(code2, { ecmaVersion: 2022, allowImportExportEverywhere: true });
+      const ast = parse8(code, { ecmaVersion: 2022, allowImportExportEverywhere: true });
       for (const node of ast.body) {
         if (node.type === "FunctionDeclaration" && node.id.name === functionName) {
           return generate2(node);
@@ -97630,84 +98469,84 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
       }
     } catch (err) {
       const msg = `Failed to parse code for function "${functionName}":`;
-      errorLogger2(msg, err);
+      errorLogger(msg, err);
     }
     return null;
   }
-  function stripComments(code2) {
-    return code2.replace(/("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|\/\/.*|\/\*[\s\S]*?\*\//g, (match, quoted) => {
+  function stripComments(code) {
+    return code.replace(/("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|\/\/.*|\/\*[\s\S]*?\*\//g, (match, quoted) => {
       return quoted ? quoted : "";
     });
   }
-  function commentInitIframeFnInSourceCode(html3, initIframeFn2) {
+  function commentInitIframeFnInSourceCode(html3, initIframeFn) {
     const explanationComment = `// The initIframe function body was commented out because resources were inlined in the iframe.
 `;
-    const fnStart = initIframeFn2.indexOf("{");
-    const fnEnd = initIframeFn2.lastIndexOf("}");
+    const fnStart = initIframeFn.indexOf("{");
+    const fnEnd = initIframeFn.lastIndexOf("}");
     if (fnStart === -1 || fnEnd === -1 || fnEnd <= fnStart) return html3;
-    const beforeBody = initIframeFn2.slice(0, fnStart + 1);
-    const body = initIframeFn2.slice(fnStart + 1, fnEnd);
-    const afterBody = initIframeFn2.slice(fnEnd);
+    const beforeBody = initIframeFn.slice(0, fnStart + 1);
+    const body = initIframeFn.slice(fnStart + 1, fnEnd);
+    const afterBody = initIframeFn.slice(fnEnd);
     const commentedBody = explanationComment + body.split("\n").map((line) => "// " + line).join("\n");
     const commentedFn = beforeBody + "\n" + commentedBody + "\n" + afterBody;
-    return html3.replace(initIframeFn2, commentedFn);
+    return html3.replace(initIframeFn, commentedFn);
   }
-  function extractAddDefaultStylesParams(code2, errorLogger2) {
+  function extractAddDefaultStylesParams(code, errorLogger) {
     const regex = /(?:iframe\.)?addDefaultStyles\s*\(\s*([\s\S]*?)\s*\)/g;
     let match;
     let merged = {};
     let found = false;
-    while ((match = regex.exec(code2)) !== null) {
+    while ((match = regex.exec(code)) !== null) {
       found = true;
       let rawParam = match[1].trim();
       if (rawParam === "" || rawParam === "null" || rawParam === "{}") {
         continue;
       }
       try {
-        const obj = Function('"use strict"; return (' + rawParam + ")")();
+        const obj = smartJSONParse(rawParam, errorLogger);
         if (obj && typeof obj === "object") {
           merged = { ...merged, ...obj };
         }
       } catch (err) {
         const msg = "Failed to parse addDefaultStyles parameter:";
-        errorLogger2(msg, err);
+        errorLogger(msg, err);
         return null;
       }
     }
     if (!found) return null;
     return merged;
   }
-  function safelyParseScriptOptions(optionsString, errorLogger2) {
+  function safelyParseScriptOptions(optionsString, errorLogger) {
     if (!optionsString || optionsString === "null" || optionsString === "{}") {
       return null;
     }
     try {
       const cleanOptionsString = optionsString.trim();
-      return Function('"use strict"; return (' + cleanOptionsString + ")")();
+      return smartJSONParse(cleanOptionsString, errorLogger);
     } catch (error) {
       const msg = "Failed to parse script options:";
-      errorLogger2(msg, error);
+      errorLogger(msg, error);
       return null;
     }
   }
-  function applyThemeToHtmlContent(htmlContent2, theme) {
+  function applyThemeToHtmlContent(htmlContent, theme) {
     if (!theme || theme !== "light" && theme !== "dark") {
-      return htmlContent2;
+      return htmlContent;
     }
-    const parser2 = new DOMParser();
-    const doc2 = parser2.parseFromString(htmlContent2, "text/html");
-    const htmlElement = doc2.documentElement;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, "text/html");
+    const htmlElement = doc.documentElement;
     if (htmlElement) {
       const themeClass = theme === "light" ? "light-theme" : "dark-theme";
       htmlElement.classList.add(themeClass);
     }
-    return doc2.documentElement.outerHTML;
+    return doc.documentElement.outerHTML;
   }
   function extractScriptContents(html3) {
     const scriptContents = [];
-    const parser2 = new DOMParser();
-    const doc2 = parser2.parseFromString(html3, "text/html");
-    const scripts = doc2.querySelectorAll("script");
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html3, "text/html");
+    const scripts = doc.querySelectorAll("script");
     scripts.forEach((script) => {
       if (!script.src) {
         scriptContents.push(script.textContent.trim());
@@ -97731,6 +98570,73 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
     }
     return result + '<pre style="margin:0!important;"><code style="overflow:auto!important;">' + otherCode + "</code></pre>";
   }
+  function isValidUrl2(url) {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  var iframeFn = {
+    getPublicUrl(resourceBaseUrl) {
+      return `${resourceBaseUrl.substring(0, resourceBaseUrl.indexOf("/project_resource"))}`;
+    },
+    getProjectResourceUrl(resourcePath, resourceBaseUrl) {
+      return `${resourceBaseUrl}/` + resourcePath;
+    },
+    getResourceUrl(resourceUrl, resourceBaseUrl) {
+      const projectResPrefix = "resource://";
+      const studioResPrefix = "studio-resource://";
+      const withPublicUrl = isValidUrl2(resourceUrl);
+      if (!resourceUrl) {
+        return `${resourceBaseUrl}`;
+      }
+      if (resourceUrl.startsWith(studioResPrefix)) {
+        return iframeFn.getStudioResourceUrl(resourceUrl.slice(studioResPrefix.length), resourceBaseUrl);
+      }
+      if (!withPublicUrl || resourceUrl.startsWith(projectResPrefix)) {
+        const cleanResource = resourceUrl.startsWith(projectResPrefix) ? resourceUrl.slice(projectResPrefix.length) : resourceUrl;
+        return iframeFn.getProjectResourceUrl(cleanResource, resourceBaseUrl);
+      }
+      return resourceUrl;
+    },
+    getStudioResourceUrl(resourceUrl, resourceBaseUrl) {
+      const projectResPrefix = "resource://";
+      const studioResPrefix = "studio-resource://";
+      if (!resourceUrl) {
+        return `${iframeFn.getPublicUrl(resourceBaseUrl)}/web/lib`;
+      }
+      if (resourceUrl.startsWith(projectResPrefix)) {
+        throw new Error("Invalid resource URL: getStudioResourceUrl does not handle project resources.");
+      }
+      const cleanResource = resourceUrl.startsWith(studioResPrefix) ? resourceUrl.slice(studioResPrefix.length) : resourceUrl;
+      return `${iframeFn.getPublicUrl(resourceBaseUrl)}/web/lib/` + cleanResource;
+    },
+    getDefaultResources(options = {}) {
+      const {
+        excludeHtmlElementsStyles = false,
+        excludeTabulatorStyles = false,
+        excludeScrollbarStyles = false
+      } = options;
+      const CSS_PATHS = {
+        htmlElements: "studio-resource://iframe/iframe.html-elements.css",
+        scrollbar: "studio-resource://iframe/scrollbar.css",
+        tabulator: "studio-resource://tabulator-tables/6.3.1/tabulator.themed.css"
+      };
+      const resources = [];
+      if (!excludeHtmlElementsStyles) {
+        resources.push({ type: "stylesheet", href: CSS_PATHS.htmlElements });
+      }
+      if (!excludeTabulatorStyles) {
+        resources.push({ type: "stylesheet", href: CSS_PATHS.tabulator });
+      }
+      if (!excludeScrollbarStyles) {
+        resources.push({ type: "stylesheet", href: CSS_PATHS.scrollbar });
+      }
+      return resources;
+    }
+  };
   async function saveChatState({
     chatName,
     chatEl,
@@ -97793,22 +98699,41 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
           initHtmlContent = "Not Found!";
         }
         initHtmlContent = applyThemeToHtmlContent(initHtmlContent, data3?.theme);
-        let { htmlContent: htmlContent2 } = await inlineExternalResources(initHtmlContent, logError, logInfo);
-        const initIframeFn2 = extractFunctionWithRegex(htmlContent2, "initIframe");
-        if (initIframeFn2) {
-          htmlContent2 = commentInitIframeFnInSourceCode(htmlContent2, initIframeFn2);
+        let { htmlContent } = await inlineExternalResources(initHtmlContent, logError, logInfo);
+        const initIframeFn = extractFunctionWithRegex(htmlContent, "initIframe");
+        if (initIframeFn) {
+          htmlContent = commentInitIframeFnInSourceCode(htmlContent, initIframeFn);
           logInfo("Replaced initIframe function with commented version as resources were successfully inlined.");
+        }
+        const helperScript = `
+<script>
+// Helper: access showAlanDebugInfo from parent when browser console is focused on iframe
+if (window.parent && window.parent !== window && !window.showAlanDebugInfo) {
+    window.showAlanDebugInfo = function() {
+        if (typeof window.parent.showAlanDebugInfo === 'function') {
+            window.parent.showAlanDebugInfo();
+        } else {
+            console.warn('showAlanDebugInfo not available in parent window');
+        }
+    };
+}
+<\/script>`;
+        const headMatch = htmlContent.match(/(<head[^>]*>)/i);
+        if (headMatch) {
+          htmlContent = htmlContent.replace(headMatch[0], headMatch[0] + helperScript);
+        } else {
+          htmlContent = helperScript + htmlContent;
         }
         const frameSrc = iframe.getAttribute("src");
         iframe.removeAttribute("src");
-        iframe.setAttribute("srcdoc", htmlContent2);
+        iframe.setAttribute("srcdoc", htmlContent);
         iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups allow-downloads");
         if (!options?.isGraphInfoDisabled && (frameSrc.indexOf("alan.") > -1 || frameSrc.indexOf("alan-"))) {
           const parent2 = iframe.parentNode;
           let controlsDiv = document.createElement("div");
           controlsDiv.classList.add("alan-iframe-controls");
           let hiddenIframe = document.createElement("iframe");
-          hiddenIframe.srcdoc = `<!--${htmlContent2}-->`;
+          hiddenIframe.srcdoc = `<!--${htmlContent}-->`;
           hiddenIframe.setAttribute("style", "display: none;");
           hiddenIframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups allow-downloads");
           controlsDiv.appendChild(hiddenIframe);
@@ -97875,7 +98800,6 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
         iframe.setAttribute("sandbox", "allow-scripts allow-same-origin");
       }
     }));
-    const iframeResizerCode = 'const v=()=>typeof window<"u",C=()=>{try{return window.self!==window.top}catch{return!0}},w=e=>e instanceof HTMLIFrameElement,z=e=>{"complete"===window.document.readyState?e():window.addEventListener("load",e,{once:!0})},B=(e,t)=>{t(),e.addEventListener("load",t,{once:!0})},k=(e,t)=>{const n="complete"===e.contentWindow?.document.readyState;return"about:blank"!==e.src&&"about:blank"!==e.contentWindow?.location.href&&n?t():e.addEventListener("load",t,{once:!0})},W=()=>({offsetSize:0,checkOrigin:!0,enableLegacyLibSupport:!1});async function A(e){try{return"about:blank"===e.contentDocument?.URL?new Promise((t=>{e.addEventListener("load",(()=>t(null!==e.contentDocument)),{once:!0})})):null!==e.contentDocument}catch{return!1}}const P=e=>{try{const t=new URL(e.src).origin;if("about:blank"!==t)return t}catch{}return null},H=e=>(Object.keys(e).forEach((t=>{void 0===e[t]&&delete e[t]})),e),I=e=>{const{height:t,width:n}=e.getBoundingClientRect();return{height:Math.ceil(t),width:Math.ceil(n)}},l=(e,t)=>e?t?e.querySelector(t):e.documentElement:null,O=(e,t)=>{e&&(t.bodyPadding&&(e.body.style.padding=t.bodyPadding),t.bodyMargin&&(e.body.style.margin=t.bodyMargin))},b=e=>e<=100?100:e<=120?1e3:1e4,x=()=>"[iFrameSizer]ID:0:false:false:32:true:true::auto:::0:false:child:auto:true:::true:::false";function F(e){if("string"!=typeof e.data||!e.data.startsWith("[iFrameSizer]")||!e.data.endsWith("mutationObserver")&&!e.data.endsWith("resizeObserver"))return null;const[t,n]=e.data.split(":"),i=+n;return i>0?i:null}const p=V();let m=[];const Z=async(e,t)=>{if(!v())return[];const n={...W(),...H(e??{})},i=N(t),r=U(n,i);return Promise.all(i.map((async e=>{const t={iframe:e,settings:n,interactionState:{isHovered:!1},initContext:{isInitialized:!1,retryAttempts:0}},{unsubscribe:i,resize:o}=await $(t,r);return m.push(t),{unsubscribe:()=>{i(),m=m.filter((t=>t.iframe!==e))},resize:o}})))};function N(e){return"string"==typeof e?Array.from(document.querySelectorAll(e)).filter(w):e?w(e)?[e]:[]:Array.from(document.getElementsByTagName("iframe"))}function U(e,t){if(Array.isArray(e.checkOrigin))return e.checkOrigin;if(!e.checkOrigin)return[];const n=[];for(const e of t){const t=P(e);t&&n.push(t)}return n}async function $(e,t){const n=await A(e.iframe),{unsubscribe:i,resize:r}=n?_(e):q(e,t),o=G(e);return{unsubscribe:()=>{i(),o()},resize:r}}function q(e,t){const{iframe:n,initContext:i,settings:{checkOrigin:r,enableLegacyLibSupport:o,targetElementSelector:s,bodyPadding:a,bodyMargin:c}}=e,d=i=>{const s="null"===i.origin,a=!r||s||t.includes(i.origin);if(n.contentWindow===i.source&&a){if("iframe-resized"===i.data?.type){const{height:t}=i.data;return void(t&&g({newHeight:t,registeredElement:e}))}if(o){const t=F(i);return void(null!==t&&g({newHeight:t,registeredElement:e}))}}};window.addEventListener("message",d);const u=o?x():{type:"iframe-child-init",targetElementSelector:s,bodyPadding:a,bodyMargin:c},l=()=>{B(n,(()=>n.contentWindow?.postMessage(u,"*"))),i.retryAttempts++,i.retryTimeoutId=window.setTimeout(l,b(i.retryAttempts))};return l(),{unsubscribe:()=>window.removeEventListener("message",d),resize:()=>{n.contentWindow?.postMessage({type:"iframe-get-child-dimensions"},"*")}}}function _(e){const{iframe:t,settings:n}=e,{targetElementSelector:i}=n;let r=0;const o=()=>{const e=l(t.contentDocument,i);if(!t.contentDocument||!e)return r++,setTimeout(o,b(r));O(t.contentDocument,n),p().observe(e)};return k(t,o),{unsubscribe:()=>{const e=l(t.contentDocument,i);e&&p().unobserve(e)},resize:()=>L(e)}}function G({iframe:e,interactionState:t,settings:n}){if(!n.onBeforeIframeResize&&!n.onIframeResize)return()=>{};const i=()=>{t.isHovered=!0},r=()=>{t.isHovered=!1};return e.addEventListener("mouseenter",i),e.addEventListener("mouseleave",r),()=>{e.removeEventListener("mouseenter",i),e.removeEventListener("mouseleave",r)}}function V(){let e=null;return()=>{if(!e){const t=({target:e})=>{const t=m.find((({iframe:t})=>t.contentDocument===e.ownerDocument));t&&L(t)};e=new ResizeObserver((e=>e.forEach(t)))}return e}}function L(e){const{iframe:t,settings:n}=e,i=l(t.contentDocument,n.targetElementSelector);if(!i)return;const{height:r}=I(i);r&&g({newHeight:r,registeredElement:e})}function g({registeredElement:e,newHeight:t}){const{iframe:n,settings:i,interactionState:r,initContext:o}=e;if(o.isInitialized||(o.isInitialized=!0,clearTimeout(o.retryTimeoutId)),!1===i.onBeforeIframeResize?.({iframe:n,interactionState:{...r},settings:{...i},observedHeight:t}))return;const s=n.getBoundingClientRect(),a=t+i.offsetSize;if(n.style.height=`${a}px`,!i.onIframeResize)return;const c={iframe:n,settings:{...i},interactionState:{...r},previousRenderState:{rect:s},nextRenderState:{rect:n.getBoundingClientRect()}};i.onIframeResize(c)}const J=X();let R,h=!1;function K(){!v()||!C()||window.addEventListener("message",(e=>"iframe-child-init"===e.data?.type?z((()=>S(e))):"iframe-get-child-dimensions"===e.data?.type?z((()=>Q(e))):void 0))}function S(e,t=0){const{targetElementSelector:n,bodyPadding:i,bodyMargin:r}=e.data,o=l(document,n);if(h||window.parent!==e.source)return;if(!o)return setTimeout((()=>S(e,t+1)),b(t));O(document,{bodyMargin:r,bodyPadding:i}),R=n;const s=J();s.disconnect(),s.observe(o),h=!0}function Q(e){const t=l(document,R);!h||window.parent!==e.source||!t||E(t)}function X(){let e=null;return()=>(e||(e=new ResizeObserver((e=>{e[0].target&&E(e[0].target)}))),e)}K();const E=e=>{const{width:t,height:n}=I(e),i={type:"iframe-resized",width:t,height:n};window.parent.postMessage(i,"*")},j=({previousRenderState:e,nextRenderState:t,iframe:n})=>{document.activeElement===n&&window.scrollBy(0,t.rect.bottom-e.rect.bottom)}; window.iframeResizer={initialize :Z ,initializeChildListener:K,updateParentScrollOnResize:j};';
     const functionsToInsert = iFrameSizeListenerFunctions.map((fn) => fn.toString()).join("\n\n");
     const onIFrameSizeListenerString = onIFrameSizeListener.toString();
     const prepareJavascriptCodeString = prepareJavascriptCode.toString();
@@ -97892,7 +98816,7 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
       logError("Chat will be exported without output graphs", error);
     }
     const alanMainClass = "alan-" + projectId;
-    const code2 = `
+    const code = `
         <script  type="text/javascript">
 
         ${functionsToInsert}
@@ -98327,12 +99251,31 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
         ${headContent ? headContent : ""}
 
         <script>
-        console.info('Alan lib v: ${window.alanLib?.version || "-"}, exporter v: 1.0.2');
-        function showAlanDebugInfo() {
-            console.info('Messages in chat:', ${txtMessages});
-            console.info('Messages in socket:', ${socketMessages});
-            console.info('Errors in export:', ${escapeJsonForScriptTag(JSON.stringify(exportErrors, null, 2))});
-            console.info('Logs in export:', ${escapeJsonForScriptTag(JSON.stringify(exportLogs, null, 2))});
+        console.info('Alan lib v: ${window.alanLib?.version || "-"}, exporter v: 1.0.3');
+        
+        // Define debug function globally - separated from data to prevent syntax errors in data from breaking the function
+        window.showAlanDebugInfo = function() {
+            try {
+                console.info('Messages in chat:', window.__alanDebugData?.txtMessages || 'not available');
+                console.info('Messages in socket:', window.__alanDebugData?.socketMessages || 'not available');
+                console.info('Errors in export:', window.__alanDebugData?.exportErrors || []);
+                console.info('Logs in export:', window.__alanDebugData?.exportLogs || []);
+            } catch (error) {
+                console.error('Error displaying debug info:', error);
+            }
+        };
+        
+        // Store debug data separately - if this fails, the function above is still defined
+        try {
+            window.__alanDebugData = {
+                txtMessages: ${txtMessages},
+                socketMessages: ${socketMessages},
+                exportErrors: ${escapeJsonForScriptTag(JSON.stringify(exportErrors, null, 2))},
+                exportLogs: ${escapeJsonForScriptTag(JSON.stringify(exportLogs, null, 2))}
+            };
+        } catch (error) {
+            console.error('Failed to load debug data:', error);
+            window.__alanDebugData = { error: 'Failed to load debug data' };
         }
         <\/script>
 
@@ -98631,22 +99574,7 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
                 ${chatConteiner.outerHTML}
             </div>
         </div>
-        ${code2}
-
-        <script type="module">
-        // Inline iframe resizer library
-        ${iframeResizerCode}
-
-        // Use the exports directly
-        const { initialize } = window.iframeResizer;
-        
-        // Find all iframes with class 'act-embed' that have an id
-        const iframes = document.querySelectorAll('iframe.act-embed[id]');
-        iframes.forEach(iframe => {
-            iframe.removeAttribute('data-iframe-resizer-initialized');
-            initialize({}, '#' + iframe.id);
-        });
-        <\/script>
+        ${code}
     </body>
     </html>
 `;
@@ -98665,7 +99593,7 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
     link.click();
     URL.revokeObjectURL(link.href);
   }
-  async function replaceImagesToBase64(images, errorLogger2) {
+  async function replaceImagesToBase64(images, errorLogger) {
     const result = {};
     for (let img of images) {
       try {
@@ -98685,7 +99613,7 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
         img.src = await fetchImageAsBase64(img.src);
       } catch (error) {
         const msg = `Error converting images for msgId ${img.getAttribute("msgInd")}:`;
-        errorLogger2(msg, error);
+        errorLogger(msg, error);
       }
     }
     return result;
@@ -98783,6 +99711,25 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
     const htmlContentWithInlinedScripts = doc.documentElement.outerHTML;
     const code = extractScriptContents(htmlContentWithInlinedScripts);
     const initIframeFn = extractFunction(code, "initIframe", errorLogger);
+    const getProjectResourceUrlFn = extractFunction(code, "getProjectResourceUrl", errorLogger);
+    let resourceBaseUrl = null;
+    const metaTag = doc.querySelector('meta[name="resource-urls"]');
+    if (metaTag) {
+      resourceBaseUrl = metaTag.getAttribute("data-resource-base-url");
+      if (resourceBaseUrl) {
+        infoLogger("Extracted resourceBaseUrl from meta tag:", resourceBaseUrl);
+      }
+    }
+    if (!resourceBaseUrl) {
+      const resourceBaseUrlMatch = getProjectResourceUrlFn?.match(/'([^']*)'/);
+      resourceBaseUrl = resourceBaseUrlMatch ? resourceBaseUrlMatch[1] : null;
+      if (resourceBaseUrl) {
+        infoLogger("Extracted resourceBaseUrl from getProjectResourceUrl function:", resourceBaseUrl);
+      }
+    }
+    if (resourceBaseUrl === null) {
+      errorLogger("Failed to extract resourceBaseUrl", null);
+    }
     let allInitIframeResourcesInlined = false;
     if (initIframeFn) {
       let initIframeBody = stripComments(initIframeFn);
@@ -98812,139 +99759,91 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
       } else {
         infoLogger(`Detected ${resourceUrls.length} resources in initIframe:`, resourceUrls.map((r) => r.url));
       }
-      const isValidUrlFn = extractFunction(code, "isValidUrl", errorLogger);
-      const getResourceUrlFn = extractFunction(code, "getResourceUrl", errorLogger);
-      const getStudioResourceUrlFn = extractFunction(code, "getStudioResourceUrl", errorLogger);
-      const getProjectResourceUrlFn = extractFunction(code, "getProjectResourceUrl", errorLogger);
-      const getDefaultResourcesFn = extractFunction(code, "getDefaultResources", errorLogger);
-      let iframeGetResourceUrl = null;
-      let iframeGetStudioResourceUrl = null;
-      let iframeGetProjectResourceUrl = null;
-      let iframeIsValidUrl = null;
-      let iframeGetDefaultResources = null;
-      try {
-        const extracted = eval(`
-                (function() {
-                    const isValidUrl = ${isValidUrlFn || "null"};
-                    const getResourceUrl = ${getResourceUrlFn || "null"};
-                    const getStudioResourceUrl = ${getStudioResourceUrlFn || "null"};
-                    const getProjectResourceUrl = ${getProjectResourceUrlFn || "null"};
-                    const getDefaultResources = ${getDefaultResourcesFn || "null"};
-
-                    return {
-                        isValidUrl,
-                        getResourceUrl,
-                        getStudioResourceUrl,
-                        getProjectResourceUrl,
-                        getDefaultResources
-                    };
-                })()
-            `);
-        if (extracted) {
-          iframeIsValidUrl = extracted.isValidUrl;
-          iframeGetResourceUrl = extracted.getResourceUrl;
-          iframeGetStudioResourceUrl = extracted.getStudioResourceUrl;
-          iframeGetProjectResourceUrl = extracted.getProjectResourceUrl;
-          iframeGetDefaultResources = extracted.getDefaultResources;
-        }
-      } catch (error) {
-        const msg = "Failed to parse resource-related functions using eval:";
-        errorLogger(msg, error);
-      }
-      let hasInternalFunctions = true;
-      if (!iframeGetResourceUrl || !iframeGetStudioResourceUrl || !iframeGetProjectResourceUrl || !iframeIsValidUrl || !iframeGetDefaultResources) {
-        hasInternalFunctions = false;
-        const msg = "Unable to parse resource-related functions from the iframe code. Some iframes may appear without content.";
-        errorLogger(msg, null);
-      }
-      allInitIframeResourcesInlined = true;
-      if (hasInternalFunctions) {
-        const addDefaultStylesOptions = extractAddDefaultStylesParams(initIframeBody, errorLogger);
-        if (addDefaultStylesOptions && iframeGetDefaultResources) {
-          try {
-            const basicResources = iframeGetDefaultResources(addDefaultStylesOptions);
-            await Promise.all(basicResources.map(async (resource) => {
-              try {
-                const resourceType = resource.type;
-                if (resourceType === "stylesheet" && resource.href) {
-                  const resourceUrl = iframeGetResourceUrl(resource.href);
-                  const resourceContent = await fetchResourceWithCache(resourceUrl);
-                  const inlineStyle = doc.createElement("style");
-                  inlineStyle.setAttribute("inlined-resource-name", resource.href);
-                  inlineStyle.textContent = resourceContent;
-                  doc.head.appendChild(inlineStyle);
-                  infoLogger(`Inlined default stylesheet:`, { name: resource.href, url: resourceUrl });
-                }
-              } catch (error) {
-                const msg = `Failed to inline basic resource from ${resource?.href}:`;
-                errorLogger(msg, error);
+      const addDefaultStylesOptions = extractAddDefaultStylesParams(initIframeBody, errorLogger);
+      if (addDefaultStylesOptions) {
+        try {
+          const basicResources = iframeFn.getDefaultResources(addDefaultStylesOptions);
+          await Promise.all(basicResources.map(async (resource) => {
+            try {
+              const resourceType = resource.type;
+              if (resourceType === "stylesheet" && resource.href) {
+                const resourceUrl = iframeFn.getResourceUrl(resource.href, resourceBaseUrl);
+                const resourceContent = await fetchResourceWithCache(resourceUrl);
+                const inlineStyle = doc.createElement("style");
+                inlineStyle.setAttribute("inlined-resource-name", resource.href);
+                inlineStyle.textContent = resourceContent;
+                doc.head.appendChild(inlineStyle);
+                infoLogger(`Inlined default stylesheet:`, { name: resource.href, url: resourceUrl });
               }
-            }));
-          } catch (error) {
-            const msg = "Failed to get or inline basic resources:";
-            errorLogger(msg, error);
-          }
-        }
-        const resourceResults = await Promise.all(resourceUrls.map(async (resource) => {
-          try {
-            const resourceUrl = iframeGetResourceUrl(resource.url);
-            const resourceContent = await fetchResourceWithCache(resourceUrl);
-            return {
-              success: true,
-              resource,
-              resourceUrl,
-              resourceContent
-            };
-          } catch (error) {
-            const msg = `Failed to fetch resource from ${resource.url}:`;
-            errorLogger(msg, error);
-            return {
-              success: false,
-              resource,
-              error
-            };
-          }
-        }));
-        let insertionPoint = doc.head.firstChild;
-        for (const result of resourceResults) {
-          if (!result.success) {
-            allInitIframeResourcesInlined = false;
-            continue;
-          }
-          const { resource, resourceUrl, resourceContent } = result;
-          try {
-            if (resource.type === "addScript" || resource.url.endsWith(".js")) {
-              const inlineScript = doc.createElement("script");
-              inlineScript.setAttribute("inlined-resource-name", resource.url);
-              inlineScript.textContent = resourceContent;
-              if (resource.options) {
-                const optionsObj = safelyParseScriptOptions(resource.options, errorLogger);
-                if (optionsObj && typeof optionsObj === "object") {
-                  if (optionsObj.type) {
-                    inlineScript.setAttribute("type", optionsObj.type);
-                  }
-                  if (optionsObj.defer) inlineScript.setAttribute("defer", "");
-                  if (optionsObj.async) inlineScript.setAttribute("async", "");
-                  if (optionsObj.nomodule) inlineScript.setAttribute("nomodule", "");
-                  if (optionsObj.crossOrigin) inlineScript.setAttribute("crossorigin", optionsObj.crossOrigin);
-                }
-              }
-              doc.head.insertBefore(inlineScript, insertionPoint);
-              insertionPoint = inlineScript.nextSibling;
-              infoLogger(`Inlined initIframe script:`, { name: resource.url, url: resourceUrl, type: inlineScript.type || "text/javascript" });
-            } else if (resource.type === "addStyleSheet" || resource.url.endsWith(".css")) {
-              const inlineStyle = doc.createElement("style");
-              inlineStyle.setAttribute("inlined-resource-name", resource.url);
-              inlineStyle.textContent = resourceContent;
-              doc.head.insertBefore(inlineStyle, insertionPoint);
-              insertionPoint = inlineStyle.nextSibling;
-              infoLogger(`Inlined initIframe stylesheet:`, { name: resource.url, url: resourceUrl });
+            } catch (error) {
+              const msg = `Failed to inline basic resource from ${resource?.href}:`;
+              errorLogger(msg, error);
             }
-          } catch (error) {
-            const msg = `Failed to inline resource from ${resource.url}:`;
-            errorLogger(msg, error);
-            allInitIframeResourcesInlined = false;
+          }));
+        } catch (error) {
+          const msg = "Failed to get or inline basic resources:";
+          errorLogger(msg, error);
+        }
+      }
+      const resourceResults = await Promise.all(resourceUrls.map(async (resource) => {
+        try {
+          const resourceUrl = iframeFn.getResourceUrl(resource.url, resourceBaseUrl);
+          const resourceContent = await fetchResourceWithCache(resourceUrl);
+          return {
+            success: true,
+            resource,
+            resourceUrl,
+            resourceContent
+          };
+        } catch (error) {
+          const msg = `Failed to fetch resource from ${resource.url}:`;
+          errorLogger(msg, error);
+          return {
+            success: false,
+            resource,
+            error
+          };
+        }
+      }));
+      let insertionPoint = doc.head.firstChild;
+      for (const result of resourceResults) {
+        if (!result.success) {
+          allInitIframeResourcesInlined = false;
+          continue;
+        }
+        const { resource, resourceUrl, resourceContent } = result;
+        try {
+          if (resource.type === "addScript" || resource.url.endsWith(".js")) {
+            const inlineScript = doc.createElement("script");
+            inlineScript.setAttribute("inlined-resource-name", resource.url);
+            inlineScript.textContent = resourceContent;
+            if (resource.options) {
+              const optionsObj = safelyParseScriptOptions(resource.options, errorLogger);
+              if (optionsObj && typeof optionsObj === "object") {
+                if (optionsObj.type) {
+                  inlineScript.setAttribute("type", optionsObj.type);
+                }
+                if (optionsObj.defer) inlineScript.setAttribute("defer", "");
+                if (optionsObj.async) inlineScript.setAttribute("async", "");
+                if (optionsObj.nomodule) inlineScript.setAttribute("nomodule", "");
+                if (optionsObj.crossOrigin) inlineScript.setAttribute("crossorigin", optionsObj.crossOrigin);
+              }
+            }
+            doc.head.insertBefore(inlineScript, insertionPoint);
+            insertionPoint = inlineScript.nextSibling;
+            infoLogger(`Inlined initIframe script:`, { name: resource.url, url: resourceUrl, type: inlineScript.type || "text/javascript" });
+          } else if (resource.type === "addStyleSheet" || resource.url.endsWith(".css")) {
+            const inlineStyle = doc.createElement("style");
+            inlineStyle.setAttribute("inlined-resource-name", resource.url);
+            inlineStyle.textContent = resourceContent;
+            doc.head.insertBefore(inlineStyle, insertionPoint);
+            insertionPoint = inlineStyle.nextSibling;
+            infoLogger(`Inlined initIframe stylesheet:`, { name: resource.url, url: resourceUrl });
           }
+        } catch (error) {
+          const msg = `Failed to inline resource from ${resource.url}:`;
+          errorLogger(msg, error);
+          allInitIframeResourcesInlined = false;
         }
       }
     }
@@ -99124,7 +100023,7 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
   }
 
   // alan_btn/src/textChat/helpers/resources.ts
-  function isValidUrl2(url) {
+  function isValidUrl3(url) {
     try {
       new URL(url);
       return true;
@@ -99140,7 +100039,7 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
     const resourceBaseUrl = uiState.resourceBaseUrl;
     const projectResPrefix = "resource://";
     const studioResPrefix = "studio-resource://";
-    const withPublicUrl = isValidUrl2(resourceUrl);
+    const withPublicUrl = isValidUrl3(resourceUrl);
     if (!resourceUrl) {
       return `${resourceBaseUrl}`;
     }
@@ -99211,7 +100110,7 @@ var hljs=function(){"use strict";function e(n){return n instanceof Map?n.clear=n
   // alan_btn/alan_btn.ts
   (function(ns) {
     const uiState10 = getUIState();
-    const version2 = "alan-version.1.8.139".replace("alan-version.", "");
+    const version2 = "alan-version.1.8.140".replace("alan-version.", "");
     uiState10.lib.version = version2;
     window.alanLib = { version: version2 };
     if (window.alanBtn) {
@@ -102355,18 +103254,30 @@ ${reason}` : reason,
         var maxQuestions = uiState10.textChat.maxQuestionsCount || 5;
         if (text3?.length > maxChars) {
           console.warn("Alan: message cannot be sent: maximum message limit exceeded.");
+          if (options.onEvent) {
+            options.onEvent({ name: "textChatMessageLimitExceeded" });
+          }
           return;
         }
         if (getActiveQuestionsCount() >= maxQuestions) {
           console.warn("Alan: message cannot be sent: maximum concurrent questions limit exceeded.");
+          if (options.onEvent) {
+            options.onEvent({ name: "textChatConcurrentQuestionsLimitExceeded" });
+          }
           return;
         }
         if (!canMsgBeSent()) {
           console.warn("Alan: message cannot be sent. Model is not ready or connection is not established.");
+          if (options.onEvent) {
+            options.onEvent({ name: "textChatModelNotReady" });
+          }
           return;
         }
         if (getActiveQuestionsCount() >= maxQuestions) {
           disableTextareaInTheChat();
+        }
+        if (options.onEvent) {
+          options.onEvent({ name: "textChatMessageSubmitted" });
         }
         var msg = { text: text3, type: "request", name: "text", tsInit: Date.now() };
         sentMessageInd = null;
@@ -102429,17 +103340,29 @@ ${reason}` : reason,
         var maxQuestions = uiState10.textChat.maxQuestionsCount || 5;
         if (lastSendMsgTs) {
           console.warn("Alan: message cannot be sent: you are sending messages too fast. Please wait a moment before sending another message.");
+          if (options.onEvent) {
+            options.onEvent({ name: "textChatMessageTooFast" });
+          }
           return;
         }
         if (text3?.length > maxChars) {
           console.warn("Alan: message cannot be sent: maximum message limit exceeded.");
+          if (options.onEvent) {
+            options.onEvent({ name: "textChatMessageLimitExceeded" });
+          }
           return;
         }
         if (getActiveQuestionsCount() >= maxQuestions) {
           console.warn("Alan: message cannot be sent: maximum concurrent questions limit exceeded.");
+          if (options.onEvent) {
+            options.onEvent({ name: "textChatConcurrentQuestionsLimitExceeded" });
+          }
           return;
         }
         if (!canMsgBeSent()) {
+          if (options.onEvent) {
+            options.onEvent({ name: "textChatModelNotReady" });
+          }
           return;
         }
         lastSendMsgTs = setTimeout(() => {
@@ -103324,6 +104247,9 @@ ${reason}` : reason,
           exitFullScreenModeForTextChat();
         }
         broadcastReloadIframeToIframes();
+        if (options.onEvent) {
+          options.onEvent({ name: uiState10.textChat.expanded ? "textChatExpanded" : "textChatCollapsed" });
+        }
       }
       async function exportChatHistory() {
         const saveChatStateBtnImg = document.getElementById("alan-btn-save-chat-state-btn");
