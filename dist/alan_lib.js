@@ -86476,9 +86476,11 @@ ${reason}`;
       if (lastRequestWithoutResIdIndex > -1) {
         messages[lastRequestWithoutResIdIndex] = {
           ...messages[lastRequestWithoutResIdIndex],
-          ctx: {
+          ctx: msg?.ctx?.tsFinal ? {
             ...messages[lastRequestWithoutResIdIndex].ctx,
             tsFinal: msg?.ctx?.tsFinal
+          } : {
+            ...messages[lastRequestWithoutResIdIndex].ctx
           }
         };
       }
@@ -100110,7 +100112,7 @@ if (window.parent && window.parent !== window && !window.showAlanDebugInfo) {
   // alan_btn/alan_btn.ts
   (function(ns) {
     const uiState10 = getUIState();
-    const version2 = "alan-version.1.8.140".replace("alan-version.", "");
+    const version2 = "alan-version.1.8.141".replace("alan-version.", "");
     uiState10.lib.version = version2;
     window.alanLib = { version: version2 };
     if (window.alanBtn) {
@@ -102719,6 +102721,7 @@ ${reason}` : reason,
           ctx: {
             ...msg.ctx,
             final: true,
+            cancelled: true,
             tsFinal: msg.ctx?.tsFinal || Date.now()
           }
         }, true);
@@ -103189,6 +103192,25 @@ ${reason}` : reason,
           localStorage.setItem(LOCAL_STORAGE_KEYS.getTabIdKey(), tabId);
         }
       }
+      function normalizeMessage(msg) {
+        const normalized = { ...msg };
+        if (normalized.queryProgress && Array.isArray(normalized.queryProgress)) {
+          normalized.queryProgress = normalized.queryProgress.map((progress) => {
+            const { isShown, ...rest } = progress;
+            return rest;
+          });
+        }
+        if (normalized.ctx) {
+          const { cancelled, ...restCtx } = normalized.ctx;
+          normalized.ctx = restCtx;
+        }
+        delete normalized.initLoad;
+        return normalized;
+      }
+      function normalizeMessagesForComparison(messages) {
+        if (!Array.isArray(messages)) return messages;
+        return messages.map((msg) => normalizeMessage(msg));
+      }
       function restoreMessagesInChat(initLoad) {
         var savedMsgs;
         if (isTutorMode()) {
@@ -103201,17 +103223,17 @@ ${reason}` : reason,
               if (savedMsgs) {
                 savedMsgs = decryptMessage(savedMsgs);
               }
-              if (savedMsgs === JSON.stringify(textChatMessages)) {
+              const parsedSavedMsgs = savedMsgs ? JSON.parse(savedMsgs) : [];
+              const normalizedSaved = JSON.stringify(normalizeMessagesForComparison(parsedSavedMsgs));
+              const normalizedCurrent = JSON.stringify(normalizeMessagesForComparison(textChatMessages));
+              if (normalizedSaved === normalizedCurrent) {
                 return;
               }
-              savedMsgs = JSON.parse(savedMsgs);
+              savedMsgs = parsedSavedMsgs;
               if (Array.isArray(savedMsgs)) {
-                if (savedMsgs?.length > 0) {
-                  clearDOMChat();
-                }
                 canceledRequests = [];
-                for (let i2 = 0; i2 < savedMsgs.length; i2++) {
-                  if (initLoad === true) {
+                if (initLoad === true) {
+                  for (let i2 = 0; i2 < savedMsgs.length; i2++) {
                     savedMsgs[i2].initLoad = true;
                     if (savedMsgs[i2].name === "loading") {
                       savedMsgs[i2].name = "text";
@@ -103220,13 +103242,77 @@ ${reason}` : reason,
                     } else {
                       renderMessageInTextChat(savedMsgs[i2], true, true);
                     }
-                  } else {
-                    renderMessageInTextChat(savedMsgs[i2], true, true);
                   }
+                  refillCancelMessages(savedMsgs);
+                  return;
                 }
+                const chatChildren = document.getElementById("chatMessages");
+                if (!chatChildren) {
+                  return;
+                }
+                const messagesInTheDom = chatChildren.querySelectorAll('[id^="msg-"]');
+                const firstMsgInTheDom = messagesInTheDom[0];
+                if (!firstMsgInTheDom) {
+                  return;
+                }
+                const firstMsgReqId = firstMsgInTheDom.getAttribute("data-request-id");
+                let canUseSmartRestore = false;
+                if (firstMsgReqId === getMsgReqId(savedMsgs[0])) {
+                  canUseSmartRestore = true;
+                }
+                if (canUseSmartRestore) {
+                  let desyncIndex = -1;
+                  for (let i2 = 0; i2 < messagesInTheDom.length; i2++) {
+                    const curRenderedMsgReqId = messagesInTheDom[i2].getAttribute("data-request-id");
+                    const curSavedMsgReqId = savedMsgs[i2] ? getMsgReqId(savedMsgs[i2]) : null;
+                    if (curSavedMsgReqId === curRenderedMsgReqId) {
+                      const existingInTextChatMsgs = textChatMessages[i2];
+                      if (existingInTextChatMsgs && JSON.stringify(normalizeMessage(existingInTextChatMsgs)) === JSON.stringify(normalizeMessage(savedMsgs[i2]))) {
+                        savedMsgs[i2].processed = true;
+                      } else {
+                        desyncIndex = i2;
+                        break;
+                      }
+                    }
+                  }
+                  const newSavedMsgs = savedMsgs.filter((m) => m.processed !== true);
+                  if (newSavedMsgs.length > 0 && desyncIndex === -1) {
+                    for (let i2 = 0; i2 < newSavedMsgs.length; i2++) {
+                      renderMessageInTextChat(newSavedMsgs[i2], true, true);
+                    }
+                  }
+                  if (desyncIndex > -1) {
+                    for (let i2 = desyncIndex; i2 < messagesInTheDom.length; i2++) {
+                      messagesInTheDom[i2].remove();
+                    }
+                    textChatMessages = textChatMessages.slice(0, desyncIndex);
+                    for (let i2 = desyncIndex; i2 < savedMsgs.length; i2++) {
+                      renderMessageInTextChat(savedMsgs[i2], true, true);
+                    }
+                  }
+                  refillCancelMessages(savedMsgs);
+                  return;
+                }
+                if (savedMsgs?.length > 0) {
+                  clearDOMChat();
+                }
+                for (let i2 = 0; i2 < savedMsgs.length; i2++) {
+                  renderMessageInTextChat(savedMsgs[i2], true, true);
+                }
+                refillCancelMessages(savedMsgs);
               }
             } catch (e) {
               console.warn("Alan: unable to restore text chat history");
+            }
+          }
+        }
+      }
+      function refillCancelMessages(savedMsgs) {
+        for (let i2 = 0; i2 < savedMsgs.length; i2++) {
+          if (savedMsgs[i2].ctx?.cancelled === true) {
+            const reqId = getMsgReqId(savedMsgs[i2]);
+            if (!canceledRequests.includes(reqId)) {
+              canceledRequests.push(reqId);
             }
           }
         }
@@ -103665,6 +103751,7 @@ ${reason}` : reason,
         const textareaEl = getChatTextareaEl();
         textareaEl.value = messages[sentMessageInd];
         moveCursorToEnd(textareaEl);
+        manageSendButtonAvailability();
       }
       function moveCursorToEnd(el) {
         el.focus();
