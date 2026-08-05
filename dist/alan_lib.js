@@ -98811,7 +98811,8 @@ if (window.parent && window.parent !== window && !window.showAlanDebugInfo) {
         outputPhrases = await getOutputLogs({
           projectId,
           environment,
-          requestIds
+          requestIds,
+          chunkSize: options?.exportChunkSize || 10
         });
       }
     } catch (error) {
@@ -99631,27 +99632,51 @@ if (window.parent && window.parent !== window && !window.showAlanDebugInfo) {
     });
   }
   async function getOutputLogs(param) {
-    return new Promise((resolve, reject) => {
-      if (!window.tutorProject) reject();
-      window.tutorProject.call("getMessageGraphs", param, function(e, res) {
-        if (e) {
-          reject({ error: e });
-        } else if (res && res.error) {
-          reject({ ...res });
-        } else {
-          if (res.graphs) {
-            resolve(
-              res.graphs.map((el) => ({
-                ...el,
-                context: escapeHtmlForGraph(el?.context || "")
-              }))
-            );
-          } else {
-            reject();
-          }
+    const { projectId, environment, requestIds, chunkSize } = param;
+    const makeCall = (callParam) => {
+      return new Promise((resolve, reject) => {
+        if (!window.tutorProject) {
+          reject();
+          return;
         }
+        window.tutorProject.call("getMessageGraphs", callParam, function(e, res) {
+          if (e) {
+            reject({ error: e });
+          } else if (res && res.error) {
+            reject({ ...res });
+          } else {
+            if (res.graphs) {
+              resolve(
+                res.graphs.map((el) => ({
+                  ...el,
+                  context: escapeHtmlForGraph(el?.context || "")
+                }))
+              );
+            } else {
+              reject();
+            }
+          }
+        });
       });
-    });
+    };
+    if (!chunkSize || requestIds.length <= chunkSize) {
+      return makeCall(param);
+    }
+    const chunks = [];
+    for (let i = 0; i < requestIds.length; i += chunkSize) {
+      chunks.push(requestIds.slice(i, i + chunkSize));
+    }
+    const allResults = [];
+    for (const chunk of chunks) {
+      const chunkParam = {
+        projectId,
+        environment,
+        requestIds: chunk
+      };
+      const chunkResults = await makeCall(chunkParam);
+      allResults.push(...chunkResults);
+    }
+    return allResults;
   }
   function escapeHtmlForGraph(unsafe) {
     return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -100112,7 +100137,7 @@ if (window.parent && window.parent !== window && !window.showAlanDebugInfo) {
   // alan_btn/alan_btn.ts
   (function(ns) {
     const uiState10 = getUIState();
-    const version2 = "alan-version.1.8.141".replace("alan-version.", "");
+    const version2 = "alan-version.1.8.142".replace("alan-version.", "");
     uiState10.lib.version = version2;
     window.alanLib = { version: version2 };
     if (window.alanBtn) {
@@ -100142,6 +100167,9 @@ if (window.parent && window.parent !== window && !window.showAlanDebugInfo) {
         },
         getOpenedClosedTextChatStateKey: () => {
           return `alan-btn-text-chat-opened-state${getUserIdLsPrefix()}-${getProjectId()}`;
+        },
+        getExpandedTextChatStateKey: () => {
+          return `alan-btn-text-chat-expanded-state${getUserIdLsPrefix()}-${getProjectId()}`;
         },
         getVoiceEnabledTextChatKey: () => {
           return `alan-btn-text-chat-text-to-speach-voice-enabled-state${getUserIdLsPrefix()}-${getProjectId()}`;
@@ -101862,6 +101890,11 @@ if (window.parent && window.parent !== window && !window.showAlanDebugInfo) {
                 showTextChat(true);
               }
             }
+            if (isTextChatSavedStateExpanded()) {
+              enterFullScreenModeForTextChat();
+            } else {
+              exitFullScreenModeForTextChat();
+            }
           } else {
             initButtonSounds();
             uiState10.textChat.available = false;
@@ -103042,6 +103075,8 @@ ${reason}` : reason,
       }
       function updateTextParts(textWrapperEl, updatedMsg) {
         if (!textWrapperEl || !updatedMsg) return;
+        const msgReqId = getMsgReqId(updatedMsg);
+        captureDetailsState(textWrapperEl, msgReqId);
         const newDiv = document.createElement("div");
         newDiv.innerHTML = buildMsgTextContent(updatedMsg);
         const newChildren = Array.from(newDiv.children[0].children);
@@ -103063,6 +103098,33 @@ ${reason}` : reason,
           });
         }
         restoreIframeState(textWrapperEl);
+        restoreDetailsState(textWrapperEl, getMsgReqId(updatedMsg));
+      }
+      function captureDetailsState(containerEl, msgReqId) {
+        if (!msgReqId) return;
+        if (!window.alanDetailsState) {
+          window.alanDetailsState = {};
+        }
+        const detailsElements = containerEl.querySelectorAll("details");
+        const openIndexes = [];
+        detailsElements.forEach((details, index2) => {
+          if (details.hasAttribute("open")) {
+            openIndexes.push(index2);
+          }
+        });
+        window.alanDetailsState[msgReqId] = openIndexes;
+      }
+      function restoreDetailsState(containerEl, msgReqId) {
+        if (!msgReqId || !window.alanDetailsState || !window.alanDetailsState[msgReqId]) return;
+        const openIndexes = window.alanDetailsState[msgReqId];
+        const detailsElements = containerEl.querySelectorAll("details");
+        detailsElements.forEach((details, index2) => {
+          if (openIndexes.includes(index2)) {
+            details.setAttribute("open", "");
+          } else {
+            details.removeAttribute("open");
+          }
+        });
       }
       function restoreIframeState(containerEl) {
         if (!window.alanIframes) return;
@@ -103145,6 +103207,7 @@ ${reason}` : reason,
         }
         questionInProgress = false;
         window.alanIframes = {};
+        window.alanDetailsState = {};
         clearChatHistoryStorage();
         clearDOMChat();
         uiState10.socketMessages = [];
@@ -104278,6 +104341,14 @@ ${reason}` : reason,
         }
         return false;
       }
+      function isTextChatSavedStateExpanded() {
+        if (isLocalStorageAvailable) {
+          if (uiState10.textChat?.options?.popup?.fullScreenMode?.enabled === true) {
+            return localStorage.getItem(LOCAL_STORAGE_KEYS.getExpandedTextChatStateKey());
+          }
+        }
+        return false;
+      }
       function closeTextChat() {
         textChatWasClosedManually = true;
         if (options?.textChat?.onClose) {
@@ -104381,7 +104452,8 @@ ${reason}` : reason,
             },
             options: {
               isGraphInfoDisabled: uiState10.textChat.chatExport.includeGraphInfo.enabled === false,
-              iframeLoadTimeoutMs: uiState10.textChat.chatExport.iframe?.loadTimeoutMs || 3e4
+              iframeLoadTimeoutMs: uiState10.textChat.chatExport.iframe?.loadTimeoutMs || 3e4,
+              exportChunkSize: options?.textChat?.exportChunkSize
             }
           });
           if (saveChatStateBtnImg) {
@@ -104397,11 +104469,17 @@ ${reason}` : reason,
         if (uiState10.textChat?.options?.popup?.fullScreenMode?.enabled === true) {
           uiState10.textChat.expanded = true;
           openChatInFullScreen(chatHolderDiv);
+          if (isLocalStorageAvailable) {
+            localStorage.setItem(LOCAL_STORAGE_KEYS.getExpandedTextChatStateKey(), "1");
+          }
         }
       }
       function exitFullScreenModeForTextChat() {
         uiState10.textChat.expanded = false;
         chatHolderDiv.classList.remove("alan-btn_text-chat-full-screen");
+        if (isLocalStorageAvailable) {
+          localStorage.removeItem(LOCAL_STORAGE_KEYS.getExpandedTextChatStateKey());
+        }
       }
       function getVoiceEnabledFlag() {
         if (isMobile()) {

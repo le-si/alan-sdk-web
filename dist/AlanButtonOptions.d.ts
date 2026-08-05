@@ -27,6 +27,7 @@ export interface AlanButtonOptions {
         onOpen?: () => void;
         headerElement?: HTMLDivElement;
         footerInfoElement?: HTMLDivElement;
+        exportChunkSize?: number;
         resources?: {
             css?: string[];
         };
