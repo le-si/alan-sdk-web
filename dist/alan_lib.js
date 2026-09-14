@@ -100137,7 +100137,7 @@ if (window.parent && window.parent !== window && !window.showAlanDebugInfo) {
   // alan_btn/alan_btn.ts
   (function(ns) {
     const uiState10 = getUIState();
-    const version2 = "alan-version.1.8.142".replace("alan-version.", "");
+    const version2 = "alan-version.1.8.143".replace("alan-version.", "");
     uiState10.lib.version = version2;
     window.alanLib = { version: version2 };
     if (window.alanBtn) {
@@ -105335,6 +105335,7 @@ ${reason}` : reason,
         }
       }
       function onChatMouseDown(e) {
+        if (uiState10.textChat.expanded) return;
         var target = e.target;
         if (target.closest(".alan-btn__close-chat-btn") || target.closest(".alan-btn__chat-minimize-btn") || target.closest("#alan-btn-expand-collapse-chat-btn") || target.closest("#alan-btn-save-chat-state-btn") || target.closest("#chat-unmute-btn")) {
           return;
